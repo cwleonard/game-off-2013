@@ -27,6 +27,14 @@ in accordance with their respective licenses, shown below.
 
 ================================================================================
 
+Game music:
+
+"River Valley Breakdown" Kevin MacLeod (incompetech.com) 
+Licensed under Creative Commons: By Attribution 3.0
+http://creativecommons.org/licenses/by/3.0/
+
+================================================================================
+
 This software uses jQuery, which is used under the MIT License.
 The following notice and conditions are in accordance with the license:
 

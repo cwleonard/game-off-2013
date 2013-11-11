@@ -23,8 +23,16 @@
 
     soundManager.setup({
     	url: 'swf/',
+    	preferFlash: false,
     	onready: function() {
     		console.log("soundmanager ready!");
+    		soundManager.createSound({
+    			id: 'background',
+    			url: 'audio/River_Valley_Breakdown.mp3',
+    			autoLoad: true,
+    			autoPlay: true,
+    			volume: 20
+    		});
     	},
     	ontimeout: function() {
     		console.log("soundmanager could not start!");
