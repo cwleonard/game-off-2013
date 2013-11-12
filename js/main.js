@@ -14,10 +14,14 @@
 	
 	var tadpole_right = new Image();
 	var tadpole_left = new Image();
-	
 	tadpole_right.src = "img/tadpole_right.png";
 	tadpole_left.src = "img/tadpole_left.png";
-	
+
+	var bad_tadpole_right = new Image();
+	var bad_tadpole_left = new Image();
+	bad_tadpole_right.src = "img/bad_tadpole_right.png";
+	bad_tadpole_left.src = "img/bad_tadpole_left.png";
+
 	var food_img = new Image();
 	food_img.src = "img/food.png";
 	
@@ -26,6 +30,7 @@
 		this.frame = food_img;
 		this.radius = 12.5;
 		this.eaten = false;
+		this.value = 10;
 		this.position = {
 				x: 0,
 				y: 0
@@ -71,6 +76,8 @@
 		this.lastDirection = this.direction;
 		this.radius = 25;
 		this.points = 0;
+		this.value = -10;
+		this.bad = false;
 		
 		this.position = {
 			x: 0,
@@ -79,9 +86,9 @@
 
 		this.setDirection = function(dir) {
 			if (dir == RIGHT && this.lastDirection == LEFT) {
-				this.frame = tadpole_right;
+				this.frame = (this.bad ? bad_tadpole_right : tadpole_right);
 			} else if (dir == LEFT && this.lastDirection == RIGHT) {
-				this.frame = tadpole_left;
+				this.frame = (this.bad ? bad_tadpole_left : tadpole_left);
 			}
 			if (this.direction == RIGHT || this.direction == LEFT) {
 				this.lastDirection = this.direction;
@@ -89,11 +96,26 @@
 			this.direction = dir;
 		};
 		
+		this.deflect = function() {
+			
+			if (this.direction == RIGHT) {
+				this.lastDirection = RIGHT;
+				this.setDirection(LEFT);
+			} else {
+				this.lastDirection = LEFT;
+				this.setDirection(RIGHT);
+			}
+			
+		};
+		
 		this.update = function(elapsed) {
 			
 	    	if (this.direction != NONE) {
 	    		
 	        	var movement = elapsed * FROG_SPEED;
+	        	if (this.bad) {
+	        		movement = movement * 1.1;
+	        	}
 	        	
 	            var nextPos = { 'x': this.position.x, 'y': this.position.y };
 	            
@@ -220,13 +242,18 @@
 				// this is a hack - won't let frogs hit each other - fix later
 				if (frogGame.sprites[i] !== frogGame.frog) {
 					if (!frogGame.sprites[i].eaten && frogGame.intersect(frogGame.frog, frogGame.sprites[i])) {
-						frogGame.sprites[i].eaten = true;
-						frogGame.addPoints();
+						if (frogGame.sprites[i].deflect) {
+							frogGame.sprites[i].deflect();
+						} else {
+							frogGame.sprites[i].eaten = true;
+						}
+						frogGame.addPoints(frogGame.sprites[i].value);
 					}
 				}
 			}
 			
 			frogGame.addFood();
+			frogGame.addFrog();
 			
 			// ======= draw
 			
@@ -247,6 +274,32 @@
 			
 		}
 		
+		this.addFrog = function() {
+			
+			// odds of adding a new piece of food are 1 in 200
+			var n = Math.floor((Math.random()*200)+1);
+			if (n == 1) {
+				var f = new Frog();
+				f.bad = true;
+				// from the left, or from the right?
+				var lr = Math.floor((Math.random()*2)+1);
+				if (lr == 1) {
+					f.setDirection(LEFT);
+					f.frame = bad_tadpole_left;
+					f.position.x = this.canvas.width;
+				} else {
+					f.setDirection(RIGHT);
+					f.frame = bad_tadpole_right;
+				}
+				// frog should appear somewhere between 0 and the lower bound of the canvas
+				var y = Math.floor(Math.random()*this.canvas.height);
+				f.position.y = y;
+				this.sprites.push(f);
+			}
+			
+			
+		}
+		
 		this.addFood = function() {
 			
 			// odds of adding a new piece of food are 1 in 500
@@ -261,9 +314,9 @@
 			
 		}
 		
-		this.addPoints = function() {
+		this.addPoints = function(v) {
 			
-			this.frog.points += 10;
+			this.frog.points += v;
 			document.getElementById("score").innerHTML = this.frog.points;
 			
 		}
