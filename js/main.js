@@ -10,6 +10,8 @@
     var FROG_SPEED = 0.3333;
     var FOOD_SPEED = 0.1;
     
+    var HURT_TIME = 350; // milliseconds
+    
 	var frogGame = null;
 	
 	var tadpole_right = new Image();
@@ -78,6 +80,8 @@
 		this.points = 0;
 		this.value = -10;
 		this.bad = false;
+		this.hurting = false;
+		this.hurtTimer = 0;
 		
 		this.position = {
 			x: 0,
@@ -108,7 +112,22 @@
 			
 		};
 		
+		this.hurt = function() {
+			
+			this.hurting = true;
+			this.hurtTimer = 0;
+			
+		}
+		
 		this.update = function(elapsed) {
+			
+			if (this.hurting) {
+				this.hurtTimer += elapsed;
+				if (this.hurtTimer >= HURT_TIME) {
+					this.hurting = false;
+				}
+				return;
+			}
 			
 	    	if (this.direction != NONE) {
 	    		
@@ -147,7 +166,13 @@
 			context.save();
 			context.translate((this.position.x),(this.position.y));
 
+			if (this.hurting) {
+				context.globalAlpha=0.5;
+			}
 			context.drawImage(this.frame,-(this.frame.width/2),-(this.frame.height/2));
+			if (this.hurting) {
+				context.globalAlpha=1.0;
+			}
 
 			context.restore();
 			
@@ -213,7 +238,7 @@
 			this.frog = new Frog();
 			
 			this.sprites.push(this.frog);
-
+			
 			window.requestAnimationFrame(this.run);
 			
 		};
@@ -244,6 +269,7 @@
 					if (!frogGame.sprites[i].eaten && frogGame.intersect(frogGame.frog, frogGame.sprites[i])) {
 						if (frogGame.sprites[i].deflect) {
 							frogGame.sprites[i].deflect();
+							frogGame.frog.hurt();
 						} else {
 							frogGame.sprites[i].eaten = true;
 						}
@@ -315,13 +341,24 @@
 		}
 		
 		this.addPoints = function(v) {
+
+			if (v < 0) {
+				soundManager.play('bad');
+			} else if (v > 0) {
+				soundManager.play('eat');
+			}
 			
 			this.frog.points += v;
+			if (this.frog.points < 0) {
+				this.frog.points = 0;
+			}
 			document.getElementById("score").innerHTML = this.frog.points;
 			
 		}
 		
 		this.intersect = function(sprite1, sprite2) {
+			
+			if (sprite1.hurting || sprite2.hurting) return false;
 			
 			var distX = sprite2.position.x - sprite1.position.x;
 			var distY = sprite2.position.y - sprite1.position.y;

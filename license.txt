@@ -33,6 +33,11 @@ Game music:
 Licensed under Creative Commons: By Attribution 3.0
 http://creativecommons.org/licenses/by/3.0/
 
+Game sounds:
+
+"Error" by Autistic Lucario - http://www.freesound.org/people/Autistic%20Lucario/sounds/142608/
+"Beeps-18" by Greencouch - http://www.freesound.org/people/Greencouch/sounds/124900/
+
 ================================================================================
 
 This software uses jQuery, which is used under the MIT License.
