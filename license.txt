@@ -40,6 +40,11 @@ Game sounds:
 
 ================================================================================
 
+This software uses the animated progress bar for jQuery by Ivan Lazarevic.
+https://github.com/kopipejst/progressbar
+
+================================================================================
+
 This software uses jQuery, which is used under the MIT License.
 The following notice and conditions are in accordance with the license:
 

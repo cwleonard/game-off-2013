@@ -12,6 +12,9 @@
     
     var HURT_TIME = 350; // milliseconds
     
+    var LEVEL_UP = 200;
+    
+    
 	var frogGame = null;
 	
 	var tadpole_right = new Image();
@@ -187,6 +190,13 @@
 		
 		this.fps = 50;
 		
+		this.sounds = true;
+		
+		this.foodWait = 0;
+		this.frogWait = 0;
+		
+		this.foodTimer = 0;
+		this.frogTimer = 0;
 		
 		this.canvas = null;
 		this.ctx = null;
@@ -239,6 +249,8 @@
 			
 			this.sprites.push(this.frog);
 			
+			progressBar(0, $('#progressBar'));
+			
 			window.requestAnimationFrame(this.run);
 			
 		};
@@ -278,8 +290,8 @@
 				}
 			}
 			
-			frogGame.addFood();
-			frogGame.addFrog();
+			frogGame.addFood(elapsed);
+			frogGame.addFrog(elapsed);
 			
 			// ======= draw
 			
@@ -300,16 +312,17 @@
 			
 		}
 		
-		this.addFrog = function() {
+		this.addFrog = function(elapsed) {
 			
-			// odds of adding a new piece of food are 1 in 200
-			var n = Math.floor((Math.random()*200)+1);
-			if (n == 1) {
+			this.frogTimer += elapsed;
+			if (this.frogTimer >= this.frogWait) {
+
+				// time to add another frog
+				
 				var f = new Frog();
 				f.bad = true;
 				// from the left, or from the right?
-				var lr = Math.floor((Math.random()*2)+1);
-				if (lr == 1) {
+				if (Math.random() < 0.5) {
 					f.setDirection(LEFT);
 					f.frame = bad_tadpole_left;
 					f.position.x = this.canvas.width;
@@ -321,38 +334,55 @@
 				var y = Math.floor(Math.random()*this.canvas.height);
 				f.position.y = y;
 				this.sprites.push(f);
+				
+				// reset timer and wait time
+				this.frogTimer = 0;
+				this.frogWait = 1200 + Math.floor(Math.random()*400);
+				// new frog appears between 1.2 and 1.6 seconds
+				
 			}
-			
 			
 		}
 		
-		this.addFood = function() {
+		this.addFood = function(elapsed) {
 			
-			// odds of adding a new piece of food are 1 in 500
-			var n = Math.floor((Math.random()*500)+1);
-			if (n == 1) {
+			this.foodTimer += elapsed;
+			if (this.foodTimer >= this.foodWait) {
+				// time to add more food
 				var f = new Food();
 				// food should appear somewhere between 0 and the right bound of the canvas
 				var x = Math.floor(Math.random()*this.canvas.width);
 				f.position.x = x;
 				this.sprites.push(f);
+				// reset timer and wait time
+				this.foodTimer = 0;
+				this.foodWait = 1700 + Math.floor(Math.random()*500);
+				// new food appears between 1.7 and 2.2 seconds
 			}
 			
 		}
 		
 		this.addPoints = function(v) {
 
-			if (v < 0) {
-				soundManager.play('bad');
-			} else if (v > 0) {
-				soundManager.play('eat');
+			if (this.sounds) {
+				if (v < 0) {
+					soundManager.play('bad');
+				} else if (v > 0) {
+					soundManager.play('eat');
+				}
 			}
-			
 			this.frog.points += v;
 			if (this.frog.points < 0) {
 				this.frog.points = 0;
 			}
-			document.getElementById("score").innerHTML = this.frog.points;
+			//document.getElementById("score").innerHTML = this.frog.points;
+			
+			if (this.frog.points == LEVEL_UP) {
+				// go to next level!
+				this.frog.points = 0;
+			}
+			
+			progressBar((this.frog.points / LEVEL_UP) * 100, $('#progressBar'));
 			
 		}
 		
@@ -364,6 +394,33 @@
 			var distY = sprite2.position.y - sprite1.position.y;
 			var magSq = distX * distX + distY * distY;
 			return magSq < (sprite1.radius + sprite2.radius) * (sprite1.radius + sprite2.radius);
+			
+		}
+		
+		this.createSounds = function() {
+			
+    		soundManager.createSound({
+				id: 'background',
+    			url: 'audio/River_Valley_Breakdown.mp3',
+    			autoLoad: true,
+    			volume: 40,
+    			onload: function() {
+    				this.play();
+    			},
+    			onfinish: function() {
+    				this.play();
+    			}
+    		});
+    		soundManager.createSound({
+    			id: 'eat',
+    			url: 'audio/124900__greencouch__beeps-18.wav',
+    			autoLoad: true
+    		});
+    		soundManager.createSound({
+    			id: 'bad',
+    			url: 'audio/142608__autistic-lucario__error.wav',
+    			autoLoad: true
+    		});
 			
 		}
 		

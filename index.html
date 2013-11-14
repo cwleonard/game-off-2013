@@ -5,52 +5,25 @@
     <style>
 	    canvas { border: 1px solid #000000; } 
     </style>
+    <link rel="stylesheet" type="text/css" href="css/progressbar.css">
     <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="js/progressbar.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
     <script type="text/javascript" src="js/microevent.js"></script>
     <script type="text/javascript" src="js/soundmanager2-jsmin.js"></script>
     <script type="text/javascript">
-
-    var shadows = true;
-
-    var sptest = false;
-
-    var sckt;
-
-    var ribbitSound;
-    var splashSound;
-    var rainSound;
 
     soundManager.setup({
     	url: 'swf/',
     	preferFlash: false,
     	onready: function() {
     		console.log("soundmanager ready!");
-    		soundManager.createSound({
-				id: 'background',
-    			url: 'audio/River_Valley_Breakdown.mp3',
-    			autoLoad: true,
-    			autoPlay: true,
-    			volume: 10
-    		});
-    		soundManager.createSound({
-    			id: 'eat',
-    			url: 'audio/124900__greencouch__beeps-18.wav',
-    			autoLoad: true
-    		});
-    		soundManager.createSound({
-    			id: 'bad',
-    			url: 'audio/142608__autistic-lucario__error.wav',
-    			autoLoad: true
-    		});
+    		frogGame.createSounds();
     	},
     	ontimeout: function() {
     		console.log("soundmanager could not start!");
     	}
     });
-
-    
-    
     
     $(function() {
 
@@ -80,8 +53,11 @@
         <p id="myfrogid"></p>
         <p id="socketstatus"></p>
     </div>
-    <div style="clear: both;">
-
+    <div style="clear: both;"></div>
+    
+    <div style="width: 800px;">
+    	<div id="progressBar" class="tiny-green"><div></div></div>
     </div>
+    
   </body>
 </html>
