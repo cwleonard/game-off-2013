@@ -8,12 +8,14 @@
     var NONE = -1;
 
     var FROG_SPEED = 0.3333;
-    var FOOD_SPEED = 0.1;
+    var FOOD_SPEED = 0.15;
+    var FISH_SPEED = 0.28;
     
     var HURT_TIME = 350; // milliseconds
     
     var LEVEL_UP = 200;
     
+    var LEVEL_NAMES = [ "tadpole", "tadpole with legs", "froglet" ];
     
 	var frogGame = null;
 	
@@ -29,6 +31,9 @@
 	tadpole2_right.src = "img/tadpole_legs_right.png";
 	tadpole2_left.src = "img/tadpole_legs_left.png";
 
+	var heroRightFrames = [ tadpole_right, tadpole2_right ];
+	var heroLeftFrames = [ tadpole_left, tadpole2_left ];
+	
 	// -------------------- "enemy" images
 	
 	// level 1
@@ -42,6 +47,23 @@
 	var bad_tadpole2_left = new Image();
 	bad_tadpole2_right.src = "img/bad_tadpole_legs_right.png";
 	bad_tadpole2_left.src = "img/bad_tadpole_legs_left.png";
+
+	var badRightFrames = [ bad_tadpole_right, bad_tadpole2_right ];
+	var badLeftFrames = [ bad_tadpole_left, bad_tadpole2_left ];
+	
+	// fish
+	
+	var fish_closed_left = new Image();
+	var fish_closed_right = new Image();
+	var fish_open_left = new Image();
+	var fish_open_right = new Image();
+	fish_closed_left.src = "img/fish_closed_left.png";
+	fish_closed_right.src = "img/fish_closed_right.png";
+	fish_open_left.src = "img/fish_open_left.png";
+	fish_open_right.src = "img/fish_open_right.png";
+	
+	var fishRightFrames = [fish_closed_right, fish_open_right];
+	var fishLeftFrames = [fish_closed_left, fish_open_left];
 
 	// -------------------- food images
 	
@@ -92,6 +114,64 @@
 		
 	} // Food()
 	
+	function Fish() {
+		
+		this.frameIndex = 0;
+		this.radius = 12.5;
+		this.value = -999; // game over!
+		this.frameTimer = 0;
+		this.frameLength = 300;
+		this.direction = (Math.random() < 0.5 ? RIGHT : LEFT);
+		if (this.direction == RIGHT) {
+			this.frameSet = fishRightFrames;
+		} else {
+			this.frameSet = fishLeftFrames;
+		}
+		this.numFrames = this.frameSet.length;
+		this.position = {
+				x: (this.direction == RIGHT ? -150 : frogGame.canvas.width + 150),
+				y: frogGame.frog.position.y
+		};
+		
+		
+		this.update = function(elapsed) {
+			
+			this.frameTimer += elapsed;
+			if (this.frameTimer >= this.frameLength) {
+				this.frameIndex++;
+				this.frameTimer = 0;
+				if (this.frameIndex == this.numFrames) {
+					this.frameIndex = 0;
+				}
+			}
+			
+			var movement = elapsed * FISH_SPEED;
+	        	
+			var dx = 0;
+			
+			if (this.direction == RIGHT) {
+				dx += movement;
+			} else {
+				dx -= movement;
+			}
+			
+			this.position.x += dx;
+
+		};
+		
+		this.draw = function(context) {
+
+			var frame = this.frameSet[this.frameIndex];
+			
+			context.save();
+			context.translate((this.position.x),(this.position.y));
+			context.drawImage(frame,-(frame.width/2),-(frame.height/2));
+			context.restore();
+			
+		};
+		
+	}
+	
 	function Frog(lvl, b) {
 		
 		this.level = lvl;
@@ -101,7 +181,7 @@
 			this.frame = (this.bad ? bad_tadpole2_right : tadpole2_right);
 		}
 		this.direction = NONE;
-		this.lastDirection = this.direction;
+		this.lastDirection = RIGHT;
 		this.radius = 25;
 		this.points = 0;
 		this.value = -10;
@@ -110,7 +190,8 @@
 		
 		this.slope = 0;
 		if (this.bad) {
-			this.slope = Math.random();
+			var u = (Math.random() < 0.5 ? -1 : 1);
+			this.slope = ((Math.random() * 7) / 10) * u;
 		}
 		
 		this.position = {
@@ -120,21 +201,10 @@
 
 		this.setDirection = function(dir) {
 
-			var ffl = null;
-			var bfl = null;
-			var ffr = null;
-			var bfr = null;
-			if (this.level > 1) {
-				ffl = tadpole2_left;
-				ffr = tadpole2_right;
-				bfl = bad_tadpole2_left;
-				bfr = bad_tadpole2_right;
-			} else {
-				ffl = tadpole_left;
-				ffr = tadpole_right;
-				bfl = bad_tadpole_left;
-				bfr = bad_tadpole_right;
-			}
+			var ffl = heroLeftFrames[this.level - 1];
+			var ffr = heroRightFrames[this.level - 1];
+			var bfl = badLeftFrames[this.level - 1];
+			var bfr = badRightFrames[this.level - 1];
 			
 			var r = (this.bad ? bfr : ffr);
 			var l = (this.bad ? bfl : ffl);
@@ -149,6 +219,18 @@
 			}
 			this.direction = dir;
 		};
+		
+		this.levelUp = function() {
+			
+			this.level++;
+			this.points = 0;
+			if (this.lastDirection == RIGHT) {
+				this.frame = heroRightFrames[this.level - 1];
+			} else if (this.lastDirection == LEFT) {
+				this.frame = heroLeftFrames[this.level - 1];
+			}
+			
+		}
 		
 		this.deflect = function() {
 			
@@ -186,29 +268,24 @@
 	        		movement = movement * 1.1;
 	        	}
 	        	
-	            var nextPos = { 'x': this.position.x, 'y': this.position.y };
-	            
 	            var dx = 0;
 	            var dy = 0;
 	        	if (this.direction == UP) {
-	        		nextPos.y -= movement;
 	        		dy -= movement;
 	        	} else if (this.direction == DOWN) {
-	        		nextPos.y += movement;
 	        		dy += movement;
 	        	} else if (this.direction == LEFT) {
-	        		nextPos.x -= movement;
 	        		dx -= movement;
 	        	} else {
-	        		nextPos.x += movement;
 	        		dx += movement;
 	        	}
-	        	
-	        	this.position.x = nextPos.x;
-	        	this.position.y = nextPos.y;
+
 	        	if (this.bad && this.level > 1) {
-	        		this.position.y = this.position.x * this.slope;
+	        		dy = dx * this.slope;
 	        	}
+
+	        	this.position.x += dx;
+	        	this.position.y += dy;
 
 	    	}
 			
@@ -241,14 +318,17 @@
 		this.fps = 50;
 		
 		this.sounds = true;
+		this.running = false;
 		
 		this.level = 1;
 		
 		this.foodWait = 0;
 		this.frogWait = 0;
+		this.fishWait = 20000; // first fish won't show up for 20 seconds
 		
 		this.foodTimer = 0;
 		this.frogTimer = 0;
+		this.fishTimer = 0;
 		
 		this.canvas = null;
 		this.ctx = null;
@@ -297,11 +377,17 @@
 		
 		this.start = function() {
 			
+			this.running = true;
+			
 			this.frog = new Frog(this.level);
+			this.frog.position.x = this.canvas.width / 2;
+			this.frog.position.y = this.canvas.height / 2;
 			
 			this.sprites.push(this.frog);
 			
 			progressBar(0, $('#progressBar'));
+			
+			this.setStatus();
 			
 			window.requestAnimationFrame(this.run);
 			
@@ -344,6 +430,7 @@
 			
 			frogGame.addFood(elapsed);
 			frogGame.addFrog(elapsed);
+			frogGame.addFish(elapsed);
 			
 			// ======= draw
 			
@@ -352,7 +439,10 @@
 			// ======= come back soon
 
 			frogGame.ctx.restore();
-			window.requestAnimationFrame(frogGame.run);
+			
+			if (frogGame.running) {
+				window.requestAnimationFrame(frogGame.run);
+			}
 			
 		};
 		
@@ -360,6 +450,25 @@
 			
 			for (var i = 0; i < this.sprites.length; i++) {
 				this.sprites[i].draw(this.ctx);
+			}
+			
+		}
+		
+		this.addFish = function(elapsed) {
+			
+			this.fishTimer += elapsed;
+			if (this.fishTimer >= this.fishWait) {
+
+				// time to add another fish
+				
+				var f = new Fish();
+				this.sprites.push(f);
+				
+				// reset timer and wait time
+				this.fishTimer = 0;
+				this.fishWait = 15000 + Math.floor(Math.random()*5000);
+				// new fish appears between 15.0 and 20.0 seconds
+				
 			}
 			
 		}
@@ -388,8 +497,11 @@
 				
 				// reset timer and wait time
 				this.frogTimer = 0;
-				this.frogWait = 1200 + Math.floor(Math.random()*400);
-				// new frog appears between 1.2 and 1.6 seconds
+				this.frogWait = 1000 + Math.floor(Math.random()*400);
+				this.frogWait -= 200 * (this.level - 1);
+				// new frog appears between 1.2 and 1.6 seconds in level 1,
+				//                  between 1.0 and 1.4 seconds in level 2,
+				//                  between 0.8 and 1.2 seconds in level 3
 				
 			}
 			
@@ -415,6 +527,13 @@
 		
 		this.addPoints = function(v) {
 
+			if (v == -999) {
+				// game over!
+				this.running = false;
+				this.setStatus();
+				return;
+			}
+			
 			if (this.sounds) {
 				if (v < 0) {
 					soundManager.play('bad');
@@ -431,11 +550,21 @@
 			if (this.frog.points == LEVEL_UP) {
 				// go to next level!
 				this.level++;
-				this.frog.level++;
-				this.frog.points = 0;
+				this.frog.levelUp();
+				this.setStatus();
 			}
 			
 			progressBar((this.frog.points / LEVEL_UP) * 100, $('#progressBar'));
+			
+		}
+		
+		this.setStatus = function() {
+
+			if (this.running) {
+				$('#status').text("Level: " + LEVEL_NAMES[this.level - 1]); 
+			} else {
+				$('#status').text("GAME OVER!!");
+			}
 			
 		}
 		
