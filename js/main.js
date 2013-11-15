@@ -17,16 +17,34 @@
     
 	var frogGame = null;
 	
+	// level 1
 	var tadpole_right = new Image();
 	var tadpole_left = new Image();
 	tadpole_right.src = "img/tadpole_right.png";
 	tadpole_left.src = "img/tadpole_left.png";
 
+	// level 2
+	var tadpole2_right = new Image();
+	var tadpole2_left = new Image();
+	tadpole2_right.src = "img/tadpole_legs_right.png";
+	tadpole2_left.src = "img/tadpole_legs_left.png";
+
+	// -------------------- "enemy" images
+	
+	// level 1
 	var bad_tadpole_right = new Image();
 	var bad_tadpole_left = new Image();
 	bad_tadpole_right.src = "img/bad_tadpole_right.png";
 	bad_tadpole_left.src = "img/bad_tadpole_left.png";
 
+	// level 2
+	var bad_tadpole2_right = new Image();
+	var bad_tadpole2_left = new Image();
+	bad_tadpole2_right.src = "img/bad_tadpole_legs_right.png";
+	bad_tadpole2_left.src = "img/bad_tadpole_legs_left.png";
+
+	// -------------------- food images
+	
 	var food_img = new Image();
 	food_img.src = "img/food.png";
 	
@@ -74,17 +92,26 @@
 		
 	} // Food()
 	
-	function Frog() {
-
-		this.frame = tadpole_right;
+	function Frog(lvl, b) {
+		
+		this.level = lvl;
+		this.bad = b;
+		this.frame = (this.bad ? bad_tadpole_right : tadpole_right);
+		if (this.level > 1) {
+			this.frame = (this.bad ? bad_tadpole2_right : tadpole2_right);
+		}
 		this.direction = NONE;
 		this.lastDirection = this.direction;
 		this.radius = 25;
 		this.points = 0;
 		this.value = -10;
-		this.bad = false;
 		this.hurting = false;
 		this.hurtTimer = 0;
+		
+		this.slope = 0;
+		if (this.bad) {
+			this.slope = Math.random();
+		}
 		
 		this.position = {
 			x: 0,
@@ -92,10 +119,30 @@
 		};
 
 		this.setDirection = function(dir) {
+
+			var ffl = null;
+			var bfl = null;
+			var ffr = null;
+			var bfr = null;
+			if (this.level > 1) {
+				ffl = tadpole2_left;
+				ffr = tadpole2_right;
+				bfl = bad_tadpole2_left;
+				bfr = bad_tadpole2_right;
+			} else {
+				ffl = tadpole_left;
+				ffr = tadpole_right;
+				bfl = bad_tadpole_left;
+				bfr = bad_tadpole_right;
+			}
+			
+			var r = (this.bad ? bfr : ffr);
+			var l = (this.bad ? bfl : ffl);
+			
 			if (dir == RIGHT && this.lastDirection == LEFT) {
-				this.frame = (this.bad ? bad_tadpole_right : tadpole_right);
+				this.frame = r;
 			} else if (dir == LEFT && this.lastDirection == RIGHT) {
-				this.frame = (this.bad ? bad_tadpole_left : tadpole_left);
+				this.frame = l;
 			}
 			if (this.direction == RIGHT || this.direction == LEFT) {
 				this.lastDirection = this.direction;
@@ -159,6 +206,9 @@
 	        	
 	        	this.position.x = nextPos.x;
 	        	this.position.y = nextPos.y;
+	        	if (this.bad && this.level > 1) {
+	        		this.position.y = this.position.x * this.slope;
+	        	}
 
 	    	}
 			
@@ -191,6 +241,8 @@
 		this.fps = 50;
 		
 		this.sounds = true;
+		
+		this.level = 1;
 		
 		this.foodWait = 0;
 		this.frogWait = 0;
@@ -245,7 +297,7 @@
 		
 		this.start = function() {
 			
-			this.frog = new Frog();
+			this.frog = new Frog(this.level);
 			
 			this.sprites.push(this.frog);
 			
@@ -319,16 +371,15 @@
 
 				// time to add another frog
 				
-				var f = new Frog();
-				f.bad = true;
+				var f = new Frog(this.level, true);
 				// from the left, or from the right?
 				if (Math.random() < 0.5) {
+					f.lastDirection = RIGHT;
 					f.setDirection(LEFT);
-					f.frame = bad_tadpole_left;
 					f.position.x = this.canvas.width;
 				} else {
+					f.lastDirection = LEFT;
 					f.setDirection(RIGHT);
-					f.frame = bad_tadpole_right;
 				}
 				// frog should appear somewhere between 0 and the lower bound of the canvas
 				var y = Math.floor(Math.random()*this.canvas.height);
@@ -379,6 +430,8 @@
 			
 			if (this.frog.points == LEVEL_UP) {
 				// go to next level!
+				this.level++;
+				this.frog.level++;
 				this.frog.points = 0;
 			}
 			
