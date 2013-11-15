@@ -31,8 +31,14 @@
 	tadpole2_right.src = "img/tadpole_legs_right.png";
 	tadpole2_left.src = "img/tadpole_legs_left.png";
 
-	var heroRightFrames = [ tadpole_right, tadpole2_right ];
-	var heroLeftFrames = [ tadpole_left, tadpole2_left ];
+	// level 3
+	var froglet_right = new Image();
+	var froglet_left = new Image();
+	froglet_right.src = "img/froglet_right.png";
+	froglet_left.src = "img/froglet_left.png";
+
+	var heroRightFrames = [ tadpole_right, tadpole2_right, froglet_right ];
+	var heroLeftFrames = [ tadpole_left, tadpole2_left, froglet_left ];
 	
 	// -------------------- "enemy" images
 	
@@ -48,8 +54,14 @@
 	bad_tadpole2_right.src = "img/bad_tadpole_legs_right.png";
 	bad_tadpole2_left.src = "img/bad_tadpole_legs_left.png";
 
-	var badRightFrames = [ bad_tadpole_right, bad_tadpole2_right ];
-	var badLeftFrames = [ bad_tadpole_left, bad_tadpole2_left ];
+	// level 3
+	var bad_froglet_right = new Image();
+	var bad_froglet_left = new Image();
+	bad_froglet_right.src = "img/bad_froglet_right.png";
+	bad_froglet_left.src = "img/bad_froglet_left.png";
+
+	var badRightFrames = [ bad_tadpole_right, bad_tadpole2_right, bad_froglet_right ];
+	var badLeftFrames = [ bad_tadpole_left, bad_tadpole2_left, bad_froglet_left ];
 	
 	// fish
 	
@@ -69,6 +81,16 @@
 	
 	var food_img = new Image();
 	food_img.src = "img/food.png";
+	
+	// -------------------- messages
+	
+	var cts_img = new Image();
+	var gameover_img = new Image();
+	cts_img.src = "img/click_to_start.png";
+	gameover_img.src = "img/game_over.png";
+	
+	
+	// -----------------------------
 	
 	function Food() {
 		
@@ -177,7 +199,9 @@
 		this.level = lvl;
 		this.bad = b;
 		this.frame = (this.bad ? bad_tadpole_right : tadpole_right);
-		if (this.level > 1) {
+		if (this.level > 2) {
+			this.frame = (this.bad ? bad_froglet_right : froglet_right);
+		} else if (this.level > 1) {
 			this.frame = (this.bad ? bad_tadpole2_right : tadpole2_right);
 		}
 		this.direction = NONE;
@@ -335,6 +359,8 @@
 		
 		this.frog = null;
 		
+		this.ignoreKeys = false;
+		
 		this.sprites = [];
 		
 		this.keyHandler = function(event) {
@@ -342,25 +368,32 @@
 			if (event.type == "keyup") {
 				
 				frogGame.frog.setDirection(NONE);
+				frogGame.ignoreKeys = false;
 				
 			} else if (event.type == "keydown") {
 
+				if (frogGame.ignoreKeys) return;
+				
 				switch (event.keyCode) {
 				case 37:
 					// LEFT ARROW
 					frogGame.frog.setDirection(LEFT);
+					frogGame.ignoreKeys = true;
 					break;
 				case 38:
 					// UP ARROW
 					frogGame.frog.setDirection(UP);
+					frogGame.ignoreKeys = true;
 					break;
 				case 39:
 					// RIGHT ARROW
 					frogGame.frog.setDirection(RIGHT);
+					frogGame.ignoreKeys = true;
 					break;
 				case 40:
 					// DOWN ARROW
 					frogGame.frog.setDirection(DOWN);
+					frogGame.ignoreKeys = true;
 					break;
 				}
 
@@ -375,73 +408,117 @@
 
 		};
 		
-		this.start = function() {
-			
-			this.running = true;
-			
+		this.pregame = function() {
+
 			this.frog = new Frog(this.level);
 			this.frog.position.x = this.canvas.width / 2;
 			this.frog.position.y = this.canvas.height / 2;
 			
 			this.sprites.push(this.frog);
+
+			var me = this;
+			window.requestAnimationFrame(function() { me.pregameDraw(); });
+
+		};
+
+		this.drawGameOver = function() {
 			
+			this.ctx.save();
+			this.ctx.translate(this.canvas.width/2,this.canvas.height/3);
+			this.ctx.drawImage(gameover_img,-(gameover_img.width/2),-(gameover_img.height/2));
+			this.ctx.restore();
+			
+		};
+		
+		this.pregameDraw = function() {
+			
+			this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+			this.ctx.fillStyle="#58ACFA";
+			this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height)
+
+			this.ctx.save();
+			this.frog.draw(this.ctx);
+			this.ctx.restore();
+			
+			this.ctx.save();
+			this.ctx.translate(this.canvas.width/2,this.canvas.height/3);
+			this.ctx.drawImage(cts_img,-(cts_img.width/2),-(cts_img.height/2));
+			this.ctx.restore();
+			
+			if (!this.running) {
+				var me = this;
+				window.requestAnimationFrame(function() { me.pregameDraw(); });
+			}
+
+		}
+		
+		this.start = function() {
+			
+			if (this.running) return;
+			
+			this.canvas.onclick = null;
+			
+			soundManager.play('background');
+			this.running = true;
 			progressBar(0, $('#progressBar'));
-			
 			this.setStatus();
 			
-			window.requestAnimationFrame(this.run);
+			var me = this;
+			window.requestAnimationFrame(function(e) { me.run(e); });
 			
 		};
 		
 		this.run = function(timestamp) {
 			
-			//console.log("running");
-			
 			var elapsed;
-			if (frogGame.startTime === null) frogGame.startTime = timestamp;
-			elapsed = timestamp - frogGame.startTime;
-			frogGame.startTime = timestamp;
+			if (this.startTime === null) this.startTime = timestamp;
+			elapsed = timestamp - this.startTime;
+			this.startTime = timestamp;
 			
 			
-			frogGame.ctx.clearRect(0,0,frogGame.canvas.width,frogGame.canvas.height);
-			frogGame.ctx.fillStyle="#58ACFA";
-			frogGame.ctx.fillRect(0,0,frogGame.canvas.width,frogGame.canvas.height)
+			this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+			this.ctx.fillStyle="#58ACFA";
+			this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height)
 
 			
-			frogGame.ctx.save();
+			this.ctx.save();
 			
 			// ======= update stuff
 			
-			for (var i = 0; i < frogGame.sprites.length; i++) {
-				frogGame.sprites[i].update(elapsed);
+			for (var i = 0; i < this.sprites.length; i++) {
+				this.sprites[i].update(elapsed);
 				// this is a hack - won't let frogs hit each other - fix later
-				if (frogGame.sprites[i] !== frogGame.frog) {
-					if (!frogGame.sprites[i].eaten && frogGame.intersect(frogGame.frog, frogGame.sprites[i])) {
-						if (frogGame.sprites[i].deflect) {
-							frogGame.sprites[i].deflect();
-							frogGame.frog.hurt();
+				if (this.sprites[i] !== this.frog) {
+					if (!this.sprites[i].eaten && this.intersect(this.frog, this.sprites[i])) {
+						if (this.sprites[i].deflect) {
+							this.sprites[i].deflect();
+							this.frog.hurt();
 						} else {
-							frogGame.sprites[i].eaten = true;
+							this.sprites[i].eaten = true;
 						}
-						frogGame.addPoints(frogGame.sprites[i].value);
+						this.addPoints(this.sprites[i].value);
 					}
 				}
 			}
 			
-			frogGame.addFood(elapsed);
-			frogGame.addFrog(elapsed);
-			frogGame.addFish(elapsed);
+			this.addFood(elapsed);
+			this.addFrog(elapsed);
+			this.addFish(elapsed);
 			
 			// ======= draw
 			
-			frogGame.draw();
+			this.draw();
+			if (!this.running) {
+				this.drawGameOver();
+			}
 			
 			// ======= come back soon
 
-			frogGame.ctx.restore();
+			this.ctx.restore();
 			
-			if (frogGame.running) {
-				window.requestAnimationFrame(frogGame.run);
+			if (this.running) {
+				var me = this;
+				window.requestAnimationFrame(function(e) { me.run(e); });
 			}
 			
 		};
@@ -531,6 +608,8 @@
 				// game over!
 				this.running = false;
 				this.setStatus();
+				soundManager.stop('background');
+				soundManager.play('gameover');
 				return;
 			}
 			
@@ -545,13 +624,13 @@
 			if (this.frog.points < 0) {
 				this.frog.points = 0;
 			}
-			//document.getElementById("score").innerHTML = this.frog.points;
 			
 			if (this.frog.points == LEVEL_UP) {
 				// go to next level!
 				this.level++;
 				this.frog.levelUp();
 				this.setStatus();
+				soundManager.play('levelup');
 			}
 			
 			progressBar((this.frog.points / LEVEL_UP) * 100, $('#progressBar'));
@@ -586,9 +665,6 @@
     			url: 'audio/River_Valley_Breakdown.mp3',
     			autoLoad: true,
     			volume: 40,
-    			onload: function() {
-    				this.play();
-    			},
     			onfinish: function() {
     				this.play();
     			}
@@ -601,6 +677,16 @@
     		soundManager.createSound({
     			id: 'bad',
     			url: 'audio/142608__autistic-lucario__error.wav',
+    			autoLoad: true
+    		});
+    		soundManager.createSound({
+    			id: 'gameover',
+    			url: 'audio/43697__notchfilter__game-over02.wav',
+    			autoLoad: true
+    		});
+    		soundManager.createSound({
+    			id: 'levelup',
+    			url: 'audio/90633__benboncan__level-up.wav',
     			autoLoad: true
     		});
 			

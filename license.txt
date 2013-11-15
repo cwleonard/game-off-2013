@@ -37,6 +37,8 @@ Game sounds:
 
 "Error" by Autistic Lucario - http://www.freesound.org/people/Autistic%20Lucario/sounds/142608/
 "Beeps-18" by Greencouch - http://www.freesound.org/people/Greencouch/sounds/124900/
+"game over02" by notchfilter - http://www.freesound.org/people/notchfilter/sounds/43697/
+"level up" by Benboncan - http://www.freesound.org/people/Benboncan/sounds/90633/
 
 ================================================================================
 
