@@ -359,7 +359,7 @@
 		
 		this.frog = null;
 		
-		this.ignoreKeys = false;
+		this.lastKey = 0;
 		
 		this.sprites = [];
 		
@@ -367,35 +367,35 @@
 			
 			if (event.type == "keyup") {
 				
-				frogGame.frog.setDirection(NONE);
-				frogGame.ignoreKeys = false;
+				if (event.keyCode == frogGame.lastKey) {
+					frogGame.frog.setDirection(NONE);
+					frogGame.lastKey = 0;
+				}
 				
 			} else if (event.type == "keydown") {
 
-				if (frogGame.ignoreKeys) return;
+				// see if we're just holding the same key down
+				if (event.keyCode == frogGame.lastKey) return;
 				
 				switch (event.keyCode) {
 				case 37:
 					// LEFT ARROW
 					frogGame.frog.setDirection(LEFT);
-					frogGame.ignoreKeys = true;
 					break;
 				case 38:
 					// UP ARROW
 					frogGame.frog.setDirection(UP);
-					frogGame.ignoreKeys = true;
 					break;
 				case 39:
 					// RIGHT ARROW
 					frogGame.frog.setDirection(RIGHT);
-					frogGame.ignoreKeys = true;
 					break;
 				case 40:
 					// DOWN ARROW
 					frogGame.frog.setDirection(DOWN);
-					frogGame.ignoreKeys = true;
 					break;
 				}
+				frogGame.lastKey = event.keyCode;
 
 			}
 			
