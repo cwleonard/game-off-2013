@@ -5,7 +5,9 @@
     <style>
 	    canvas { border: 1px solid #000000; } 
     </style>
+    <link rel="stylesheet" type="text/css" href="css/default.css">
     <link rel="stylesheet" type="text/css" href="css/progressbar.css">
+    <link href='http://fonts.googleapis.com/css?family=Ribeye' rel='stylesheet' type='text/css'>
     <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
     <script type="text/javascript" src="js/progressbar.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
@@ -46,21 +48,22 @@
     </style>
   </head>
   <body>
-    <div style="float: left">
-      <canvas id="game" width="800" height="400" onclick="frogGame.start();"></canvas>
+
+	<h2 id="title">The Frog Lifecycle</h2>
+
+	<p id="desc">You start as a tadpole. Grab food but don't become food for something else! How fast can you become a frog?</p>
+
+    <div>
+      <canvas class="centered" id="game" width="800" height="400" onclick="frogGame.start();"></canvas>
     </div>
-    <div style="float: left; margin-left: 10px;">
-        <p id="score"></p>
-        <p id="myfrogid"></p>
-        <p id="socketstatus"></p>
-    </div>
-    <div style="clear: both;"></div>
     
-    <div style="width: 800px;">
-    	<div id="progressBar" class="tiny-green"><div></div></div>
+    <div id="levelProgress">
+    	<div id="progressBar" class="tiny-green"><div>&nbsp;</div></div>
     </div>
 
-    <div><p id="status"></p></div>
+    <p id="status"></p>
     
+     
+     
   </body>
 </html>

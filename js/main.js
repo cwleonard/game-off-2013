@@ -192,18 +192,13 @@
 			
 		};
 		
-	}
+	} // Fish()
 	
 	function Frog(lvl, b) {
 		
 		this.level = lvl;
 		this.bad = b;
-		this.frame = (this.bad ? bad_tadpole_right : tadpole_right);
-		if (this.level > 2) {
-			this.frame = (this.bad ? bad_froglet_right : froglet_right);
-		} else if (this.level > 1) {
-			this.frame = (this.bad ? bad_tadpole2_right : tadpole2_right);
-		}
+		this.frame = null;
 		this.direction = NONE;
 		this.lastDirection = RIGHT;
 		this.radius = 25;
@@ -211,17 +206,33 @@
 		this.value = -10;
 		this.hurting = false;
 		this.hurtTimer = 0;
-		
 		this.slope = 0;
-		if (this.bad) {
-			var u = (Math.random() < 0.5 ? -1 : 1);
-			this.slope = ((Math.random() * 7) / 10) * u;
-		}
+		this.position = { x: 0, y: 0 };
 		
-		this.position = {
-			x: 0,
-			y: 0
-		};
+		if (this.bad) {
+			
+			// from the left, or from the right?
+			if (Math.random() < 0.5) {
+				this.lastDirection = RIGHT;
+				this.direction = LEFT;
+				this.position.x = frogGame.canvas.width;
+			} else {
+				this.lastDirection = LEFT;
+				this.direction = RIGHT;
+			}
+			
+			// frog should appear somewhere between 0 and the lower bound of the canvas
+			var y = Math.floor(Math.random()*frogGame.canvas.height);
+			this.position.y = y;
+			
+			// if frog is on the top half, it should trend down. bottom half? trend up!
+			var u = ((this.position.y > (frogGame.canvas.height / 2)) ? 1 : -1);
+			this.slope = ((Math.random() * 7) / 10) * u;
+			
+		}
+
+		var hFrames = (this.bad ? (this.direction == LEFT ? badLeftFrames : badRightFrames) : (this.direction == LEFT ? heroLeftFrames : heroRightFrames));
+		this.frame = hFrames[this.level - 1];
 
 		this.setDirection = function(dir) {
 
@@ -338,6 +349,7 @@
 	function FrogGame() {
 		
 		this.startTime = null;
+		this.gameStart = null;
 		
 		this.fps = 50;
 		
@@ -456,6 +468,8 @@
 			
 			if (this.running) return;
 			
+			this.gameStart = (new Date()).getTime();
+			
 			this.canvas.onclick = null;
 			
 			soundManager.play('background');
@@ -558,18 +572,6 @@
 				// time to add another frog
 				
 				var f = new Frog(this.level, true);
-				// from the left, or from the right?
-				if (Math.random() < 0.5) {
-					f.lastDirection = RIGHT;
-					f.setDirection(LEFT);
-					f.position.x = this.canvas.width;
-				} else {
-					f.lastDirection = LEFT;
-					f.setDirection(RIGHT);
-				}
-				// frog should appear somewhere between 0 and the lower bound of the canvas
-				var y = Math.floor(Math.random()*this.canvas.height);
-				f.position.y = y;
 				this.sprites.push(f);
 				
 				// reset timer and wait time
@@ -640,7 +642,17 @@
 		this.setStatus = function() {
 
 			if (this.running) {
-				$('#status').text("Level: " + LEVEL_NAMES[this.level - 1]); 
+				
+				if (this.level > LEVEL_NAMES.length) {
+					// made it to the end!
+					var endTime = (new Date()).getTime();
+					var elapsed = (endTime - this.gameStart) / 1000;
+					$('#status').text("You made it! You're a frog! Your time was " + elapsed + " seconds.");
+					this.running = false;
+				} else {
+					$('#status').text("Level: " + LEVEL_NAMES[this.level - 1]);
+				}
+				
 			} else {
 				$('#status').text("GAME OVER!!");
 			}
