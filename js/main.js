@@ -10,6 +10,9 @@
     var FROG_SPEED = 0.3333;
     var FOOD_SPEED = 0.15;
     var FISH_SPEED = 0.28;
+    var LP_SPEED = 0.18;
+    
+    var MIN_JUMP = 100;
     
     var HURT_TIME = 350; // milliseconds
     
@@ -18,6 +21,11 @@
     var LEVEL_NAMES = [ "tadpole", "tadpole with legs", "froglet" ];
     
 	var frogGame = null;
+	
+	var PREGAME_MODE = 0;
+	var GAME_MODE = 1;
+	var PREBONUS_MODE = 2;
+	var BONUS_MODE = 3;
 	
 	// level 1
 	var tadpole_right = new Image();
@@ -82,14 +90,22 @@
 	var food_img = new Image();
 	food_img.src = "img/food.png";
 	
-	// -------------------- lily pad images
+	// -------------------- bonus round images
 	
 	var lily_pad = new Image();
 	var frog_lily_pad = new Image();
 	var grown_frog = new Image();
+	var jumping_frog = new Image();
+	var pond_edge = new Image();
+	var open_mouth = new Image();
+	var instructions = new Image();
 	lily_pad.src = "img/lp.png";
 	frog_lily_pad.src = "img/frog_on_lp.png";
 	grown_frog.src = "img/frog1.png";
+	jumping_frog.src = "img/jumping.png";
+	pond_edge.src = "img/pond_edge.png";
+	open_mouth.src = "img/open_mouth.png";
+	instructions.src = "img/bonus_instructions.png";
 	
 	// -------------------- messages
 	
@@ -103,14 +119,60 @@
 	
 	// -----------------------------
 	
-	function LilyPad(withFrog) {
+	function LilyPad() {
 		
-		this.frame = (withFrog ? frog_lily_pad : lily_pad);
-		this.position = { x: 0, y: 0 };
-		
+		this.done = false;
+		this.radius = 25;
+		this.withFrog = ( Math.random() < 0.1 ? true : false );
+		this.frame = (this.withFrog ? frog_lily_pad : lily_pad);
+		this.direction = ( Math.random() < 0.5 ? LEFT : RIGHT );
+		this.position = { 
+			x: (this.direction == LEFT ? frogGame.canvas.width : 0),
+			y: 225 //(this.direction == LEFT ? 75 : 225),
+		};
+		this.value = (this.withFrog ? 0 : 20);
+
+		this.addFrog = function() {
+			this.frame = frog_lily_pad;
+		}
+
+		this.update = function(elapsed) {
+
+			if (this.done) return;
+
+			var rads = -elapsed * 0.0005;
+			
+			var x1 = this.position.x;
+			var y1 = this.position.y;
+			
+			if (this.direction == LEFT) {
+				x1 -= frogGame.canvas.width;
+				rads = -rads;
+			}
+			
+			this.position.x = (x1 * Math.cos(rads)) - (y1 * Math.sin(rads));
+			this.position.y = (x1 * Math.sin(rads)) + (y1 * Math.cos(rads));
+
+			if (this.direction == LEFT) {
+				this.position.x += frogGame.canvas.width;
+			}
+			
+			if (this.position.y < -100) {
+				this.done = true;
+			}
+			
+		};
+
 		this.draw = function(context) {
+			
+			if (this.done) return;
+			
 			context.save();
-			context.translate((this.position.x),(this.position.y));
+			if (this.direction == LEFT) {
+				context.translate((this.position.x),(this.position.y));
+			} else {
+				context.translate((this.position.x),(this.position.y));
+			}
 			context.drawImage(this.frame,-(this.frame.width/2),-(this.frame.height/2));
 			context.restore();
 		};
@@ -118,43 +180,34 @@
 		
 	} // LilyPad()
 	
-	function FrogWheel() {
-		
-		this.items = [];
-		this.position = { x: 0, y: 0 };
-		
-		
-		
-		this.update = function(elapsed) {
-			
-			var rads = elapsed * 0.05;
-			
-			for (var i = 0; i < this.items.length; i++) {
-				
-				var x1 = this.items[i].position.x;
-				var y1 = this.items[i].position.y;
-				
-				this.items[i].position.x = (x1 * Math.cos(rads)) - (y1 * Math.sin(rads));
-				this.items[i].position.y = (x1 * Math.sin(rads)) + (y1 * Math.cos(rads));
-				
-				
-			}
-			
-			
-		};
-		
-		
-	} // FrogWheel()
-	
 	function Frog() {
 		
+		this.radius = 25;
 		this.frame = grown_frog;
 		this.movement = NONE;
+		this.poweringUp = false;
 		this.angle = 0;
-		this.position = { x: 0, y: 0 };
+		this.position = { x: frogGame.canvas.width / 2, y: frogGame.canvas.height - 50 };
+		this.slope = 1;
+		this.jumpDistance = MIN_JUMP;
+		this.alreadyJumped = 0;
+		this.landed = false;
+		this.points = 0;
+		
+		this.reset = function() {
+			this.frame = grown_frog;
+			this.movement = NONE;
+			this.alreadyJumped = 0;
+			this.jumpDistance = MIN_JUMP;
+			this.landed = false;
+			this.angle = 0;
+			this.position.x = frogGame.canvas.width / 2;
+			this.position.y = frogGame.canvas.height - 50;
+		}
 		
 		this.update = function(elapsed) {
 		
+			if (this.landed) return;
 			
 	    	if (this.movement != NONE) {
 	    		
@@ -162,27 +215,79 @@
 	        	
 	        	if (this.movement == LEFT) {
 	        		this.angle -= delta;
+	        		if (this.angle < -40) {
+	        			this.angle = -40;
+	        		}
 	        	} else if (this.movement == RIGHT) {
 	        		this.angle += delta;
+	        		if (this.angle > 40) {
+	        			this.angle = 40;
+	        		}
 	        	} else if (this.movement == UP) {
 	        		
-	        		var t = Math.tan(this.angle * (Math.PI / 180));
-	        		console.log(t);
+
+	        		var xp = 0;
+	        		var yp = 0;
+	        		if (this.slope < 0) {
+	        			xp = -(delta / Math.sqrt((1 + Math.pow(this.slope, 2))));
+	        		} else {
+	        			xp = (delta / Math.sqrt((1 + Math.pow(this.slope, 2))));
+	        		}
+	        		yp = this.slope * xp;
+	        		
+	        		this.position.x += xp;
+	        		this.position.y -= yp;
+	        		
+	        		this.alreadyJumped += delta;
+	        		if (this.alreadyJumped >= this.jumpDistance) {
+	        			// do this stuff after we've jumped the whole way
+	        			this.movement = NONE;
+	        			this.jumpDistance = MIN_JUMP;
+	        			this.alreadyJumped = 0;
+	        			this.landed = true;
+	        		}
 	        		
 	        	}
 
+	    	} else if (this.poweringUp) {
+	    		
+	    		var d = elapsed * 0.25;
+	    		this.jumpDistance += d;
+	    		if (this.jumpDistance > 400) {
+	    			this.jumpDistance = 400;
+	    		}
+	    		
 	    	}
 
 			
 		}
 		
 		this.setDirection = function(dir) {
+			
+			if (this.movement == UP) return;
 
-			this.movement = dir;
+			if (dir == UP && !this.poweringUp) {
+				this.poweringUp = true;
+			} else if (dir == NONE && this.poweringUp) {
+				
+				this.poweringUp = false;
+				this.movement = UP;
+				console.log("going to jump " + this.jumpDistance);
+				this.frame = jumping_frog;
+				
+	    		this.slope = Math.tan((90 - this.angle) * (Math.PI / 180));
+				
+			} else if (dir == NONE) {
+				this.movement = dir;
+			} else if (dir == RIGHT || dir == LEFT) {
+				this.movement = dir;
+			}
 			
 		};
 
 		this.draw = function(context) {
+
+			if (this.landed) return;
 
 			context.save();
 			context.translate((this.position.x),(this.position.y));
@@ -192,9 +297,6 @@
 			
 		};
 
-		
-		
-		
 	} // Frog()
 	
 	function Food() {
@@ -453,10 +555,13 @@
 	
 	function FrogGame() {
 		
-		this.mode = 0;
+		this.mode = PREGAME_MODE;
 		
 		this.startTime = null;
 		this.gameStart = null;
+		
+		this.countdownTimer = 60; // length of bonus round in seconds
+		this.secondTimer = 0;
 		
 		this.fps = 50;
 		
@@ -468,10 +573,12 @@
 		this.foodWait = 0;
 		this.frogWait = 0;
 		this.fishWait = 20000; // first fish won't show up for 20 seconds
+		this.lpWait = 0;
 		
 		this.foodTimer = 0;
 		this.frogTimer = 0;
 		this.fishTimer = 0;
+		this.lpTimer = 0;
 		
 		this.canvas = null;
 		this.ctx = null;
@@ -482,10 +589,20 @@
 		
 		this.sprites = [];
 		
+		
+		// counters for score
+		this.totalTime = 0;
+		
+		
 		this.keyHandler = function(event) {
 			
-			if (frogGame.mode == 0) {
-				frogGame.changeMode(1);
+			if (frogGame.mode == PREGAME_MODE) {
+				frogGame.changeMode(GAME_MODE);
+			} else if (frogGame.mode == PREBONUS_MODE) {
+				if (event.type == "keyup" && event.keyCode == 32) {
+					frogGame.changeMode(BONUS_MODE);
+				}
+				return;
 			}
 			
 			if (event.type == "keyup") {
@@ -579,7 +696,32 @@
 			}
 
 		}
-		
+
+		this.preBonusDraw = function() {
+			
+			this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+			this.ctx.fillStyle="#86B404";
+			this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height)
+
+			this.ctx.save();
+			this.ctx.translate(this.canvas.width*5/6,this.canvas.height*2/3);
+			this.ctx.drawImage(open_mouth,-(open_mouth.width/2),-(open_mouth.height/2));
+			this.ctx.restore();
+
+			this.ctx.save();
+			this.ctx.translate(250,180);
+			this.ctx.drawImage(instructions,-(instructions.width/2),-(instructions.height/2));
+			this.ctx.restore();
+
+			var me = this;
+			if (this.mode == PREBONUS_MODE) {
+				window.requestAnimationFrame(function() { me.preBonusDraw(); });
+			} else {
+				window.requestAnimationFrame(function(e) { me.run(e); });
+			}
+
+		}
+
 		this.start = function() {
 			
 			if (this.running) return;
@@ -613,28 +755,47 @@
 			
 			// ======= update stuff
 			
-			for (var i = 0; i < this.sprites.length; i++) {
-				this.sprites[i].update(elapsed);
-				// this is a hack - won't let frogs hit each other - fix later
-				if (this.sprites[i] !== this.frog) {
-					if (!this.sprites[i].eaten && this.intersect(this.frog, this.sprites[i])) {
-						if (this.sprites[i].deflect) {
-							this.sprites[i].deflect();
-							this.frog.hurt();
-						} else {
-							this.sprites[i].eaten = true;
+			if (this.mode == GAME_MODE || this.mode == BONUS_MODE) {
+			
+				for (var i = 0; i < this.sprites.length; i++) {
+					this.sprites[i].update(elapsed);
+					// this is a hack - won't let frogs hit each other - fix later
+					if (this.sprites[i] !== this.frog) {
+						if (!this.sprites[i].eaten && this.intersect(this.frog, this.sprites[i])) {
+							if (this.sprites[i].deflect) {
+								// "bad" tadpole
+								this.sprites[i].deflect();
+								this.frog.hurt();
+							} else if (this.sprites[i].addFrog) {
+								// lilypad (bonus round)
+								this.sprites[i].addFrog();
+								this.frog.landed = true;
+							} else {
+								// food
+								this.sprites[i].eaten = true;
+							}
+							this.addPoints(this.sprites[i].value);
 						}
-						this.addPoints(this.sprites[i].value);
 					}
 				}
+
+				if (this.frog.landed) {
+					this.frog.reset();
+				}
+
 			}
 			
-			if (this.mode == 1) {
+			if (this.mode == GAME_MODE) {
 			
 				this.addFood(elapsed);
 				this.addFrog(elapsed);
 				this.addFish(elapsed);
 			
+			} else if (this.mode == BONUS_MODE) {
+				
+				this.addPad(elapsed);
+				this.subtractTime(elapsed);
+				
 			}
 			
 			// ======= draw
@@ -647,18 +808,44 @@
 			// ======= come back soon
 
 			this.ctx.restore();
-			
-			if (this.running) {
-				var me = this;
+
+			var me = this;
+			if (this.mode == PREBONUS_MODE) {
+				window.requestAnimationFrame(function() { me.preBonusDraw(); });
+			} else if (this.running) {
 				window.requestAnimationFrame(function(e) { me.run(e); });
 			}
-			
+
 		};
 		
 		this.draw = function() {
 			
-			for (var i = 0; i < this.sprites.length; i++) {
-				this.sprites[i].draw(this.ctx);
+			if (this.mode == BONUS_MODE) {
+
+				// draw edge of pond
+				for (var p = 0; p < (this.canvas.width / 100); p++) {
+					this.ctx.save();
+					this.ctx.translate((p*100) + 50, this.canvas.height - 40);
+					this.ctx.drawImage(pond_edge,-(pond_edge.width/2),-(pond_edge.height/2));
+					this.ctx.restore();
+				}
+
+				// draw everything but frog
+				for (var i = 0; i < this.sprites.length; i++) {
+					if (this.sprites[i] !== this.frog) {
+						this.sprites[i].draw(this.ctx);
+					}
+				}
+
+				// draw frog last
+				this.frog.draw(this.ctx);
+				
+			} else if (this.mode == GAME_MODE) {
+			
+				for (var i = 0; i < this.sprites.length; i++) {
+					this.sprites[i].draw(this.ctx);
+				}
+				
 			}
 			
 		}
@@ -722,6 +909,25 @@
 			
 		}
 		
+		this.addPad = function(elapsed) {
+			
+			this.lpTimer += elapsed;
+			if (this.lpTimer >= this.lpWait) {
+
+				// time to add another lilypad
+				
+				var f = new LilyPad();
+				this.sprites.push(f);
+
+				// reset timer and wait time
+				this.lpTimer = 0;
+				this.lpWait = 3000;
+				
+			}
+			
+		}
+
+		
 		this.addPoints = function(v) {
 
 			if (v == -999) {
@@ -757,43 +963,83 @@
 			
 		}
 		
+		this.subtractTime = function(elapsed) {
+			
+			this.secondTimer += elapsed;
+			if (this.secondTimer >= 1000) {
+				this.secondTimer = 0;
+				this.countdownTimer--;
+				this.setStatus();
+			}
+			
+			if (this.countdownTimer == 0) {
+				// time's up!
+				this.running = false;
+				this.setStatus();
+			}
+			
+		}
+		
 		this.setStatus = function() {
 
 			if (this.running) {
 				
-				if (this.level > LEVEL_NAMES.length) {
-					// made it to the end!
-					var endTime = (new Date()).getTime();
-					var elapsed = (endTime - this.gameStart) / 1000;
-					$('#status').text("You made it! You're a frog! Your time was " + elapsed + " seconds.");
-					//this.running = false;
+				if (this.mode == GAME_MODE) {
+				
+					if (this.level > LEVEL_NAMES.length) {
+						// made it to the end!
+						var endTime = (new Date()).getTime();
+						var elapsed = (endTime - this.gameStart) / 1000;
+						this.totalTime = elapsed;
+						$('#status').text("You made it! You're a frog! Your time was " + elapsed + " seconds.");
+
+						this.changeMode(PREBONUS_MODE);
+
+					} else {
+						$('#status').text("Level: " + LEVEL_NAMES[this.level - 1]);
+					}
+				
+				} else if (this.mode == BONUS_MODE) {
 					
-					this.changeMode(2);
+					$('#status').text("Time Remaining: " + this.countdownTimer + " seconds");
 					
-				} else {
-					$('#status').text("Level: " + LEVEL_NAMES[this.level - 1]);
 				}
 				
 			} else {
+				
 				$('#status').text("GAME OVER!!");
+				if (this.mode == BONUS_MODE) {
+					
+					var bonusPoints = this.frog.points;
+					$('#status').text("Final score: You made frog in " + this.totalTime + " seconds with " + bonusPoints + " extra points!");
+					
+				}
+				
 			}
 			
 		}
 		
 		this.changeMode = function(newMode) {
 			
-			if (newMode == 1) {
+			if (newMode == GAME_MODE) {
 				
+				this.mode = newMode;
 				this.start();
+
+			} else if (newMode == PREBONUS_MODE) {
+
+				this.sprites = [];
+				$('#status').text("");
+				progressBar(0, $('#progressBar'));
 				
-			} else if (newMode == 2) {
+			} else if (newMode == BONUS_MODE) {
 				
 				this.sprites = [];
 				this.frog = new Frog();
 				this.frog.position.x = this.canvas.width / 2;
 				this.frog.position.y = this.canvas.height - 50;
 				this.sprites.push(this.frog);
-				
+
 			}
 			
 			this.mode = newMode;
