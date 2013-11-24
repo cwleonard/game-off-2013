@@ -11,7 +11,6 @@
     <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
     <script type="text/javascript" src="js/progressbar.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
-    <script type="text/javascript" src="js/microevent.js"></script>
     <script type="text/javascript" src="js/soundmanager2-jsmin.js"></script>
     <script type="text/javascript">
 
@@ -37,8 +36,6 @@
         $(document).keydown(frogGame.keyHandler);
         $(document).keyup(frogGame.keyHandler);
         
- 	    frogGame.pregame();
-
     });
     
       
@@ -62,6 +59,8 @@
     </div>
 
     <p id="status"></p>
+
+    <p id="buttons"><img src="img/reset_button.png" onclick="frogGame.reset();"/></p>
     
     <div>
     	<input type="button" value="2" onclick="frogGame.changeMode(2);"/>
