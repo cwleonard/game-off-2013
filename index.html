@@ -60,7 +60,8 @@
 
     <p id="status"></p>
 
-    <p id="buttons"><img src="img/reset_button.png" onclick="frogGame.reset();"/></p>
+    <p id="buttons"><a class="fancy" onclick="frogGame.reset();">RESET</a>
+    <a id="pauseButton" class="fancy" onclick="frogGame.pause(this);">PAUSE</a></p>
     
     <div>
     	<input type="button" value="2" onclick="frogGame.changeMode(2);"/>

@@ -676,10 +676,12 @@
 		
 		this.fps = 50;
 		this.mode = PREGAME_MODE;
+		this.lastMode = PREGAME_MODE;
 		this.level = 1;
 		
 		this.lastTime = null;
 		this.gameStart = null;
+		this.paused = false;
 		
 		this.countdownTimer = 60; // length of bonus round in seconds
 		this.secondTimer = 0;
@@ -719,7 +721,11 @@
 			this.level = 1;
 			this.lastTime = null;
 			this.gameStart = null;
+			this.countdownTimer = 60; // length of bonus round in seconds
 			this.secondTimer = 0;
+			this.paused = false;
+			$('#pauseButton').removeClass('down');
+
 			
 			this.foodWait = 0;
 			this.frogWait = 0;
@@ -777,29 +783,52 @@
 			} else if (event.type == "keydown") {
 
 				// see if we're just holding the same key down
-				if (event.keyCode == frogGame.lastKey) return;
+				if (event.keyCode == frogGame.lastKey) {
+					event.preventDefault();
+					return;
+				}
 				
 				switch (event.keyCode) {
 				case 37:
 					// LEFT ARROW
 					frogGame.frog.setDirection(LEFT);
+					event.preventDefault();
 					break;
 				case 38:
 					// UP ARROW
 					frogGame.frog.setDirection(UP);
+					event.preventDefault();
 					break;
 				case 39:
 					// RIGHT ARROW
 					frogGame.frog.setDirection(RIGHT);
+					event.preventDefault();
 					break;
 				case 40:
 					// DOWN ARROW
 					frogGame.frog.setDirection(DOWN);
+					event.preventDefault();
 					break;
 				}
 				frogGame.lastKey = event.keyCode;
 
 			}
+			
+		};
+		
+		this.pause = function(e) {
+			
+			if (this.mode == PREGAME_MODE || this.mode == PREBONUS_MODE) {
+				// can't pause these modes
+				return;
+			}
+			
+			if (this.paused) {
+				$(e).removeClass('down');
+			} else {
+				$(e).addClass('down');
+			}
+			this.paused = !this.paused;
 			
 		};
 
@@ -874,17 +903,19 @@
 			elapsed = timestamp - this.lastTime;
 			this.lastTime = timestamp;
 
-			if (this.mode == PREGAME_MODE) {
-				this.pregameLoop(elapsed);
-			} else if (this.mode == GAME_MODE) {
-				this.gameLoop(elapsed)
-			} else if (this.mode == PREBONUS_MODE) {
-				this.preBonusLoop(elapsed);
-			} else if (this.mode == BONUS_MODE) {
-				this.bonusLoop(elapsed);
-			} else if (this.mode == GAME_OVER_MODE) {
-				this.gameOverLoop(elapsed);
-				return; // don't loop back here again
+			if (!this.paused) {
+				if (this.mode == PREGAME_MODE) {
+					this.pregameLoop(elapsed);
+				} else if (this.mode == GAME_MODE) {
+					this.gameLoop(elapsed)
+				} else if (this.mode == PREBONUS_MODE) {
+					this.preBonusLoop(elapsed);
+				} else if (this.mode == BONUS_MODE) {
+					this.bonusLoop(elapsed);
+				} else if (this.mode == GAME_OVER_MODE) {
+					this.gameOverLoop(elapsed);
+					return; // don't loop back here again
+				}
 			}
 			
 			var me = this;
@@ -901,7 +932,7 @@
 			this.ctx.drawImage(gameover_img,-(gameover_img.width/2),-(gameover_img.height/2));
 			this.ctx.restore();
 			
-		}
+		};
 		
 		this.gameLoop = function(elapsed) {
 			
@@ -968,7 +999,7 @@
 			
 			this.ctx.restore();
 			
-		}
+		};
 
 		this.bonusLoop = function(elapsed) {
 			
@@ -1033,7 +1064,7 @@
 			
 			this.ctx.restore();
 			
-		}
+		};
 
 		
 		this.addFish = function(elapsed) {
@@ -1053,7 +1084,7 @@
 				
 			}
 			
-		}
+		};
 		
 		this.addFrog = function(elapsed) {
 			
@@ -1075,7 +1106,7 @@
 				
 			}
 			
-		}
+		};
 		
 		this.addFood = function(elapsed) {
 			
@@ -1093,7 +1124,7 @@
 				// new food appears between 1.7 and 2.2 seconds
 			}
 			
-		}
+		};
 
 		this.addBubbles = function(elapsed) {
 			
@@ -1108,7 +1139,7 @@
 				// new food appears between 5.5 and 8.8 seconds
 			}
 			
-		}
+		};
 
 		this.addPad = function(elapsed) {
 			
@@ -1126,8 +1157,7 @@
 				
 			}
 			
-		}
-
+		};
 		
 		this.addPoints = function(v) {
 
@@ -1159,7 +1189,7 @@
 			
 			progressBar((this.frog.points / LEVEL_UP) * 100, $('#progressBar'));
 			
-		}
+		};
 		
 		this.subtractTime = function(elapsed) {
 			
@@ -1175,7 +1205,7 @@
 				this.changeMode(GAME_OVER_MODE);
 			}
 			
-		}
+		};
 		
 		this.setStatus = function() {
 
@@ -1199,7 +1229,7 @@
 				var endTime = (new Date()).getTime();
 				var elapsed = (endTime - this.gameStart) / 1000;
 				this.totalTime = elapsed;
-				$('#status').text("You made it! You're a frog! Your time was " + elapsed + " seconds.");
+				$('#status').text("You made it! You became a frog in " + elapsed + " seconds!");
 
 			} else if (this.mode == BONUS_MODE) {
 
@@ -1207,20 +1237,22 @@
 
 			} else if (this.mode == GAME_OVER_MODE) {
 
-				$('#status').text("GAME OVER!!");
-
-
-				var bonusPoints = this.frog.points;
-				$('#status').text("Final score: You made frog in " + this.totalTime + " seconds with " + bonusPoints + " extra points!");
-
+				if (this.lastMode == GAME_MODE) {
+					$('#status').text("Try again with another tadpole!");
+				} else if (this.lastMode == BONUS_MODE) {
+					var bonusPoints = this.frog.points;
+					$('#status').text("Final score: You made frog in " + this.totalTime + " seconds with " + bonusPoints + " extra points!");
+				} else {
+					$('#status').text("GAME OVER!!");
+				}
 
 			}
-				
 			
-		}
+		};
 		
 		this.changeMode = function(newMode) {
 
+			this.lastMode = this.mode;
 			this.mode = newMode;
 
 			if (newMode == PREGAME_MODE) {
