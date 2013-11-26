@@ -20,29 +20,29 @@ I made the other game images - all the frogs, fish, plants, etc. I used [Inkscap
 
 This project uses the following open source software packages. You can find the complete license information [here](license.txt).
 
-[jQuery](http://jquery.com/) - https://github.com/jquery/jquery
+  * [jQuery](http://jquery.com/) - https://github.com/jquery/jquery
 
-[SoundManager2](schillmania.com) - https://github.com/scottschiller/SoundManager2
+  * [SoundManager2](schillmania.com) - https://github.com/scottschiller/SoundManager2
 
-The animated progress bar for jQuery by Ivan Lazarevic. - https://github.com/kopipejst/progressbar
+  * The animated progress bar for jQuery by Ivan Lazarevic. - https://github.com/kopipejst/progressbar
 
 ## Music
 
 The game music is royalty-free and licensed under Creative Commons: By Attribution 3.0.
 
-"River Valley Breakdown" Kevin MacLeod ([incompetech.com](http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300032)) 
+  * "River Valley Breakdown" Kevin MacLeod ([incompetech.com](http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300032)) 
 
 ## Sound Effects
 
 The game sound effects are also licensed under Creative Commons: By Attribution 3.0.
 
-"Error" by Autistic Lucario - http://www.freesound.org/people/Autistic%20Lucario/sounds/142608/
+  * "Error" by Autistic Lucario - http://www.freesound.org/people/Autistic%20Lucario/sounds/142608/
 
-"Beeps-18" by Greencouch - http://www.freesound.org/people/Greencouch/sounds/124900/
+  * "Beeps-18" by Greencouch - http://www.freesound.org/people/Greencouch/sounds/124900/
 
-"game over02" by notchfilter - http://www.freesound.org/people/notchfilter/sounds/43697/
+  * "game over02" by notchfilter - http://www.freesound.org/people/notchfilter/sounds/43697/
 
-"level up" by Benboncan - http://www.freesound.org/people/Benboncan/sounds/90633/
+  * "level up" by Benboncan - http://www.freesound.org/people/Benboncan/sounds/90633/
 
 
 
