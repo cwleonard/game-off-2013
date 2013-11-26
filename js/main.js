@@ -137,16 +137,16 @@
 	function LilyPad() {
 		
 		this.done = false;
-		this.radius = 10;
+		this.radius = 12;
 		this.withFrog = false; //( Math.random() < 0.1 ? true : false );
 		this.frame = (this.withFrog ? frog_lily_pad : lily_pad);
 		this.direction = ( Math.random() < 0.5 ? LEFT : RIGHT );
 		this.position = { 
-			x: (this.direction == LEFT ? frogGame.canvas.width : 0),
+			x: (this.direction == LEFT ? frogGame.canvas.width - 30 : 30),
 			y: 225 //(this.direction == LEFT ? 75 : 225),
 		};
 		this.value = ( Math.random() < 0.8 ? 5 : 10 );
-		this.speed = ( this.value == 5 ? 0.0005 : 0.0008 );
+		this.speed = ( this.value == 5 ? 0.0005 : 0.0007 );
 
 		this.addFrog = function() {
 			this.frame = frog_lily_pad;
@@ -162,15 +162,19 @@
 			var y1 = this.position.y;
 			
 			if (this.direction == LEFT) {
-				x1 -= frogGame.canvas.width;
+				x1 -= (frogGame.canvas.width - 30);
 				rads = -rads;
+			} else {
+				x1 -= 30;
 			}
 			
 			this.position.x = (x1 * Math.cos(rads)) - (y1 * Math.sin(rads));
 			this.position.y = (x1 * Math.sin(rads)) + (y1 * Math.cos(rads));
 
 			if (this.direction == LEFT) {
-				this.position.x += frogGame.canvas.width;
+				this.position.x += (frogGame.canvas.width - 30);
+			} else {
+				this.position.x += 30;
 			}
 			
 			if (this.position.y < -100) {
@@ -401,8 +405,8 @@
 	function Fish() {
 		
 		this.frameIndex = 0;
-		this.radius = 42;
-		this.intOffsetX = 108;
+		this.radius = 15; //42;
+		this.intOffsetX = 20; //108;
 		this.value = -999; // game over!
 		this.frameTimer = 0;
 		this.frameLength = 300;
@@ -818,7 +822,7 @@
 		
 		this.pause = function(e) {
 			
-			if (this.mode == PREGAME_MODE || this.mode == PREBONUS_MODE) {
+			if (this.mode == PREGAME_MODE || this.mode == PREBONUS_MODE || this.mode == GAME_OVER_MODE) {
 				// can't pause these modes
 				return;
 			}
@@ -1153,7 +1157,7 @@
 
 				// reset timer and wait time
 				this.lpTimer = 0;
-				this.lpWait = 2500;
+				this.lpWait = 2300;
 				
 			}
 			
