@@ -108,14 +108,14 @@
 	// -------------------- bonus round images
 	
 	var lily_pad = new Image();
-	var frog_lily_pad = new Image();
+	var flower = new Image();
 	var grown_frog = new Image();
 	var jumping_frog = new Image();
 	var pond_edge = new Image();
 	var open_mouth = new Image();
 	var instructions = new Image();
 	lily_pad.src = "img/lp.png";
-	frog_lily_pad.src = "img/frog_on_lp.png";
+	flower.src = "img/lilypad_flower.png";
 	grown_frog.src = "img/frog1.png";
 	jumping_frog.src = "img/jumping.png";
 	pond_edge.src = "img/pond_edge.png";
@@ -127,10 +127,11 @@
 	var cts_img = new Image();
 	var how_to = new Image();
 	var gameover_img = new Image();
+	var greatjob_img = new Image();
 	cts_img.src = "img/key_to_start.png";
 	how_to.src = "img/how_to_move.png";
 	gameover_img.src = "img/game_over.png";
-	
+	greatjob_img.src = "img/great_job.png";
 	
 	// -----------------------------
 	
@@ -138,18 +139,20 @@
 		
 		this.done = false;
 		this.radius = 12;
-		this.withFrog = false; //( Math.random() < 0.1 ? true : false );
-		this.frame = (this.withFrog ? frog_lily_pad : lily_pad);
+		this.withFrog = false;
+		this.frame = lily_pad;
+		this.frogRotation = 0;
 		this.direction = ( Math.random() < 0.5 ? LEFT : RIGHT );
 		this.position = { 
 			x: (this.direction == LEFT ? frogGame.canvas.width - 30 : 30),
-			y: 225 //(this.direction == LEFT ? 75 : 225),
+			y: 225
 		};
 		this.value = ( Math.random() < 0.8 ? 5 : 10 );
 		this.speed = ( this.value == 5 ? 0.0005 : 0.0007 );
 
-		this.addFrog = function() {
-			this.frame = frog_lily_pad;
+		this.addFrog = function(r) {
+			this.withFrog = true;
+			this.frogRotation = r;
 		}
 
 		this.update = function(elapsed) {
@@ -188,13 +191,21 @@
 			if (this.done) return;
 			
 			context.save();
-			if (this.direction == LEFT) {
-				context.translate((this.position.x),(this.position.y));
-			} else {
-				context.translate((this.position.x),(this.position.y));
-			}
+			context.translate((this.position.x),(this.position.y));
 			context.drawImage(this.frame,-(this.frame.width/2),-(this.frame.height/2));
+			if (this.value == 10) {
+				// draw a flower on these
+				context.save();
+				context.translate(20,-20);
+				context.drawImage(flower,-(flower.width/2),-(flower.height/2));
+				context.restore();
+			}
+			if (this.withFrog) {
+				context.rotate(this.frogRotation);
+				context.drawImage(grown_frog,-(grown_frog.width/2),-(grown_frog.height/2));
+			}
 			context.restore();
+			
 		};
 
 		
@@ -225,26 +236,36 @@
 			this.position.y = frogGame.canvas.height - 50;
 		}
 		
+		this.getRotation = function() {
+			
+			var r = (90 - Math.abs(this.angle)) * (Math.PI / 180);
+			if (this.angle < 0) {
+				r = -r;
+			}
+			return r;
+			
+		}
+		
 		this.update = function(elapsed) {
 		
 			if (this.landed) return;
 			
 	    	if (this.movement != NONE) {
 	    		
+	    		var deltaA = elapsed * FROG_SPEED * 1.05;
 	        	var delta = elapsed * FROG_SPEED * 1.3;
 	        	
 	        	if (this.movement == LEFT) {
-	        		this.angle -= delta;
-	        		if (this.angle < -50) {
-	        			this.angle = -50;
+	        		this.angle -= deltaA;
+	        		if (this.angle < -60) {
+	        			this.angle = -60;
 	        		}
 	        	} else if (this.movement == RIGHT) {
-	        		this.angle += delta;
-	        		if (this.angle > 50) {
-	        			this.angle = 50;
+	        		this.angle += deltaA;
+	        		if (this.angle > 60) {
+	        			this.angle = 60;
 	        		}
 	        	} else if (this.movement == UP) {
-	        		
 
 	        		var xp = 0;
 	        		var yp = 0;
@@ -286,24 +307,11 @@
 			
 			if (this.movement == UP) return;
 
-//			if (dir == UP && !this.poweringUp) {
-//				
-//				this.poweringUp = true;
-//				
-//			} else if (dir == NONE && this.poweringUp) {
-//				
-//				this.poweringUp = false;
-//				this.movement = UP;
-//				console.log("going to jump " + this.jumpDistance);
-//				this.frame = jumping_frog;
-//				
-//	    		this.slope = Math.tan((90 - this.angle) * (Math.PI / 180));
 			if (dir == UP) {
 					
 				this.jumpDistance = 550;
 				this.poweringUp = false;
 				this.movement = UP;
-				console.log("going to jump " + this.jumpDistance);
 				this.frame = jumping_frog;
 				
 	    		this.slope = Math.tan((90 - this.angle) * (Math.PI / 180));
@@ -362,6 +370,7 @@
 		
 		this.frame = food_img;
 		this.radius = 12.5;
+		this.rotation = Math.floor(Math.random()*360),
 		this.eaten = false;
 		this.value = 10;
 		this.position = {
@@ -395,6 +404,7 @@
 
 			context.save();
 			context.translate((this.position.x),(this.position.y));
+			context.rotate(this.rotation * Math.PI/180);
 			context.drawImage(this.frame,-(this.frame.width/2),-(this.frame.height/2));
 			context.restore();
 			
@@ -716,11 +726,14 @@
 		this.bsprites = [];
 		this.plant = null;
 		
-		
 		// counters for score
 		this.totalTime = 0;
+		this.frogsJumped = 0;
+		this.lilypadHit = 0;
 		
 		this.reset = function() {
+			
+			this.hideStatsDiv();
 			
 			this.level = 1;
 			this.lastTime = null;
@@ -730,7 +743,6 @@
 			this.paused = false;
 			$('#pauseButton').removeClass('down');
 
-			
 			this.foodWait = 0;
 			this.frogWait = 0;
 			this.fishWait = 20000; // first fish won't show up for 20 seconds
@@ -752,7 +764,9 @@
 			this.plant = null;
 
 			this.totalTime = 0;
-			
+			this.frogsJumped = 0;
+			this.lilypadHit = 0;
+
 			this.changeMode(PREGAME_MODE);
 
 			var me = this;
@@ -933,9 +947,13 @@
 			
 			this.ctx.save();
 			this.ctx.translate(this.canvas.width/2,this.canvas.height/3);
-			this.ctx.drawImage(gameover_img,-(gameover_img.width/2),-(gameover_img.height/2));
+			if (this.lastMode == BONUS_MODE) {
+				this.ctx.drawImage(greatjob_img,-(greatjob_img.width/2),-(greatjob_img.height/2));
+			} else {
+				this.ctx.drawImage(gameover_img,-(gameover_img.width/2),-(gameover_img.height/2));
+			}
 			this.ctx.restore();
-			
+
 		};
 		
 		this.gameLoop = function(elapsed) {
@@ -1008,15 +1026,18 @@
 		this.bonusLoop = function(elapsed) {
 			
 			// ======= update stuff
-			
+
+			var onLilypad = false;
 			for (var i = 0; i < this.sprites.length; i++) {
 				this.sprites[i].update(elapsed);
 				if (this.sprites[i] !== this.frog) {
 					if (this.intersect(this.frog, this.sprites[i])) {
 						if (this.sprites[i].addFrog) {
 							// lilypad (bonus round)
-							this.sprites[i].addFrog();
+							this.sprites[i].addFrog(this.frog.getRotation());
 							this.frog.landed = true;
+							onLilypad = true;
+							this.lilypadHit++;
 						}
 						this.addPoints(this.sprites[i].value);
 					}
@@ -1024,7 +1045,11 @@
 			}
 
 			if (this.frog.landed) {
+				if (!onLilypad && this.sounds) {
+					soundManager.play('splash');
+				}
 				this.frog.reset();
+				this.frogsJumped++;
 			}
 
 
@@ -1188,7 +1213,7 @@
 				this.level++;
 				this.frog.levelUp();
 				this.setStatus();
-				soundManager.play('levelup');
+				if (this.sounds) soundManager.play('levelup');
 			}
 			
 			progressBar((this.frog.points / LEVEL_UP) * 100, $('#progressBar'));
@@ -1242,17 +1267,55 @@
 			} else if (this.mode == GAME_OVER_MODE) {
 
 				if (this.lastMode == GAME_MODE) {
+
+					var endTime = (new Date()).getTime();
+					var elapsed = (endTime - this.gameStart) / 1000;
+					var totalTime = elapsed;
+					
+					//this.showStatsDiv("<p>Time: " + totalTime + " seconds!</p>");
 					$('#status').text("Try again with another tadpole!");
+					
 				} else if (this.lastMode == BONUS_MODE) {
+					
+					var accuracy = (this.frogsJumped > 0 ? Math.floor((this.lilypadHit / this.frogsJumped) * 100) : 0);
 					var bonusPoints = this.frog.points;
-					$('#status').text("Final score: You made frog in " + this.totalTime + " seconds with " + bonusPoints + " extra points!");
+
+					this.showStatsDiv("<p>Frog time: " + this.totalTime + " seconds!</br>Lilypoints: " + bonusPoints + "!<br/>Lilypad Accuracy: " + accuracy + "%</p>");
+					
+					$('#status').text("Time's up!");
+					
 				} else {
+					
 					$('#status').text("GAME OVER!!");
+					
 				}
 
 			}
 			
 		};
+		
+		this.hideStatsDiv = function() {
+			
+			$('#finalStats').text("");
+			$('#finalStats').css({
+				'display': 'none'
+			});
+			
+		}
+		
+		this.showStatsDiv = function(html) {
+
+			$('#finalStats').html(html);
+			
+			var coff = $(this.canvas).offset();
+			var fsw = $('#finalStats').width();
+			$('#finalStats').css({
+				'top': (coff.top + 190) + "px",
+				'left': (coff.left + (this.canvas.width / 2) - (fsw / 2) - 20) + "px",
+				'display': 'block'
+			});
+			
+		}
 		
 		this.changeMode = function(newMode) {
 
@@ -1277,9 +1340,9 @@
 			} else if (newMode == GAME_MODE) {
 				
 				this.gameStart = (new Date()).getTime();
-				
-				soundManager.play('background');
 				progressBar(0, $('#progressBar'));
+				
+				if (this.sounds) soundManager.play('background');
 				
 			} else if (newMode == PREBONUS_MODE) {
 
@@ -1297,7 +1360,13 @@
 			} else if (newMode == GAME_OVER_MODE) {
 				
 				soundManager.stop('background');
-				soundManager.play('gameover');
+				if (this.sounds) {
+					if (this.lastMode == BONUS_MODE) {
+						soundManager.play('complete'); 
+					} else {
+						soundManager.play('gameover');
+					}
+				}
 				
 			}
 			
@@ -1348,12 +1417,22 @@
     		});
     		soundManager.createSound({
     			id: 'gameover',
-    			url: 'audio/43697__notchfilter__game-over02.wav',
+    			url: 'audio/43698__notchfilter__game-over03.wav',
     			autoLoad: true
     		});
     		soundManager.createSound({
     			id: 'levelup',
     			url: 'audio/90633__benboncan__level-up.wav',
+    			autoLoad: true
+    		});
+    		soundManager.createSound({
+    			id: 'splash',
+    			url: 'audio/110393__soundscalpel-com__water-splash.wav',
+    			autoLoad: true
+    		});
+    		soundManager.createSound({
+    			id: 'complete',
+    			url: 'audio/177120__rdholder__2dogsound-tadaa1-3s-2013jan31-cc-by-30-us.wav',
     			autoLoad: true
     		});
 			

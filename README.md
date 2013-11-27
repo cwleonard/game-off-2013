@@ -40,9 +40,13 @@ The game sound effects are also licensed under Creative Commons: By Attribution 
 
   * "Beeps-18" by Greencouch - http://www.freesound.org/people/Greencouch/sounds/124900/
 
-  * "game over02" by notchfilter - http://www.freesound.org/people/notchfilter/sounds/43697/
+  * "game over03" by notchfilter - http://www.freesound.org/people/notchfilter/sounds/43698/
 
   * "level up" by Benboncan - http://www.freesound.org/people/Benboncan/sounds/90633/
+  
+  * "water splash" by soundscalpel.com - http://www.freesound.org/people/soundscalpel.com/sounds/110393/
+  
+  * "ta-daa" by rdholder - http://www.freesound.org/people/rdholder/sounds/177120/
 
 
 
