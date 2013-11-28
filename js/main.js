@@ -830,22 +830,30 @@
 				
 				switch (event.keyCode) {
 				case 37:
-					// LEFT ARROW
+				case 65:
+				case 97:
+					// LEFT ARROW or A
 					frogGame.frog.setDirection(LEFT);
 					event.preventDefault();
 					break;
 				case 38:
-					// UP ARROW
+				case 87:
+				case 119:
+					// UP ARROW or W
 					frogGame.frog.setDirection(UP);
 					event.preventDefault();
 					break;
 				case 39:
-					// RIGHT ARROW
+				case 68:
+				case 100:
+					// RIGHT ARROW or D
 					frogGame.frog.setDirection(RIGHT);
 					event.preventDefault();
 					break;
 				case 40:
-					// DOWN ARROW
+				case 83:
+				case 115:
+					// DOWN ARROW or S
 					frogGame.frog.setDirection(DOWN);
 					event.preventDefault();
 					break;
