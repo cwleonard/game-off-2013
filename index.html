@@ -34,8 +34,8 @@
         	canvas: document.getElementById("game")
         });
         
-        $(document).keydown(frogGame.keyHandler);
-        $(document).keyup(frogGame.keyHandler);
+        $(document).keydown(function(e) { frogGame.keyHandler(e); });
+        $(document).keyup(function(e) { frogGame.keyHandler(e); });
         
     });
     

@@ -727,6 +727,7 @@
 		this.mode = PREGAME_MODE;
 		this.lastMode = PREGAME_MODE;
 		this.level = 1;
+		this.allowKeypress = true;
 		
 		this.lastTime = null;
 		this.gameStart = null;
@@ -776,6 +777,7 @@
 			this.secondTimer = 0;
 			this.paused = false;
 			$('#pauseButton').removeClass('down');
+			this.allowKeypress = true;
 
 			this.foodWait = 0;
 			this.frogWait = 0;
@@ -811,31 +813,32 @@
 		
 		this.keyHandler = function(event) {
 			
-			if (frogGame.mode == PREGAME_MODE) {
+			if (this.mode == PREGAME_MODE) {
 				
-				frogGame.changeMode(GAME_MODE);
+				this.changeMode(GAME_MODE);
 				
-			} else if (frogGame.mode == PREBONUS_MODE) {
+			} else if (this.mode == PREBONUS_MODE) {
 				
-				if (event.type == "keyup") { // && event.keyCode == 32) {
-					frogGame.changeMode(BONUS_MODE);
-					frogGame.lastKey = 0;
+				if (this.allowKeypress && event.type == "keyup") { // && event.keyCode == 32) {
+					this.changeMode(BONUS_MODE);
+					this.lastKey = 0;
 				}
+				event.preventDefault();
 				return;
 				
 			}
 			
 			if (event.type == "keyup") {
 				
-				if (event.keyCode == frogGame.lastKey) {
-					frogGame.frog.setDirection(NONE);
-					frogGame.lastKey = 0;
+				if (event.keyCode == this.lastKey) {
+					this.frog.setDirection(NONE);
+					this.lastKey = 0;
 				}
 				
 			} else if (event.type == "keydown") {
 
 				// see if we're just holding the same key down
-				if (event.keyCode == frogGame.lastKey) {
+				if (event.keyCode == this.lastKey) {
 					event.preventDefault();
 					return;
 				}
@@ -845,32 +848,32 @@
 				case 65:
 				case 97:
 					// LEFT ARROW or A
-					frogGame.frog.setDirection(LEFT);
+					this.frog.setDirection(LEFT);
 					event.preventDefault();
 					break;
 				case 38:
 				case 87:
 				case 119:
 					// UP ARROW or W
-					frogGame.frog.setDirection(UP);
+					this.frog.setDirection(UP);
 					event.preventDefault();
 					break;
 				case 39:
 				case 68:
 				case 100:
 					// RIGHT ARROW or D
-					frogGame.frog.setDirection(RIGHT);
+					this.frog.setDirection(RIGHT);
 					event.preventDefault();
 					break;
 				case 40:
 				case 83:
 				case 115:
 					// DOWN ARROW or S
-					frogGame.frog.setDirection(DOWN);
+					this.frog.setDirection(DOWN);
 					event.preventDefault();
 					break;
 				}
-				frogGame.lastKey = event.keyCode;
+				this.lastKey = event.keyCode;
 
 			}
 			
@@ -945,8 +948,20 @@
 
 		};
 
-		this.preBonusLoop = function() {
+		this.preBonusLoop = function(elapsed) {
+			
+			this.secondTimer += elapsed;
+			if (this.secondTimer >= 1000) {
+				this.secondTimer = 0;
+				this.countdownTimer--;
+			}
+			
+			if (this.countdownTimer == 0) {
+				this.allowKeypress = true;
+			}
+
 			this.preBonusDraw();
+			
 		};
 
 		this.preBonusDraw = function() {
@@ -975,10 +990,12 @@
 			this.ctx.drawImage(points_img,-(points_img.width/2),-(points_img.height/2));
 			this.ctx.restore();
 
-			this.ctx.save();
-			this.ctx.translate(235,400);
-			this.ctx.drawImage(pakts,-(pakts.width/2),-(pakts.height/2));
-			this.ctx.restore();
+			if (this.allowKeypress) {
+				this.ctx.save();
+				this.ctx.translate(235,400);
+				this.ctx.drawImage(pakts,-(pakts.width/2),-(pakts.height/2));
+				this.ctx.restore();
+			}
 
 			this.ctx.save();
 			this.ctx.translate(this.canvas.width*5/6,this.canvas.height*2/3);
@@ -1443,11 +1460,14 @@
 				
 			} else if (newMode == PREBONUS_MODE) {
 
+				this.countdownTimer = 3;
+				this.allowKeypress = false;
 				this.sprites = [];
 				progressBar(0, $('#progressBar'));
 				
 			} else if (newMode == BONUS_MODE) {
 				
+				this.countdownTimer = 60;
 				this.hideStatsDiv();
 				this.level = 0;
 				this.sprites = [];
