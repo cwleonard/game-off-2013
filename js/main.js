@@ -119,6 +119,9 @@
 	var pond_edge = new Image();
 	var open_mouth = new Image();
 	var instructions = new Image();
+	var instructions2 = new Image();
+	var points_img = new Image();
+	var pakts = new Image();
 	lily_pad.src = "img/lp.png";
 	flower.src = "img/lilypad_flower.png";
 	grown_frog.src = "img/frog1.png";
@@ -127,18 +130,25 @@
 	blue_jumping_frog.src = "img/blue_frog_jumping.png";
 	pond_edge.src = "img/pond_edge.png";
 	open_mouth.src = "img/open_mouth.png";
-	instructions.src = "img/bonus_instructions.png";
+	instructions.src = "img/round2_description.png";
+	instructions2.src = "img/round2_instructions.png";
+	points_img.src = "img/round2_points.png";
+	pakts.src = "img/pakts.png";
 	
 	// -------------------- messages
 	
-	var cts_img = new Image();
+	var desc_img = new Image();
 	var how_to = new Image();
 	var gameover_img = new Image();
 	var greatjob_img = new Image();
-	cts_img.src = "img/key_to_start.png";
-	how_to.src = "img/how_to_move.png";
+	var loading_img = new Image();
+	var frog_word_img = new Image();
+	desc_img.src = "img/game_description.png";
+	how_to.src = "img/how_to_play.png";
 	gameover_img.src = "img/game_over.png";
 	greatjob_img.src = "img/great_job.png";
+	loading_img.src = "img/loading.png";
+	frog_word_img.src = "img/round2_frog.png";
 	
 	// -----------------------------
 	
@@ -710,6 +720,9 @@
 	
 	function FrogGame() {
 		
+		this.soundsToLoad = 7;
+		this.soundsLoaded = 0;
+		
 		this.fps = 50;
 		this.mode = PREGAME_MODE;
 		this.lastMode = PREGAME_MODE;
@@ -721,7 +734,6 @@
 		
 		this.countdownTimer = 60; // length of bonus round in seconds
 		this.secondTimer = 0;
-		
 		
 		this.sounds = true;
 		
@@ -805,7 +817,7 @@
 				
 			} else if (frogGame.mode == PREBONUS_MODE) {
 				
-				if (event.type == "keyup" && event.keyCode == 32) {
+				if (event.type == "keyup") { // && event.keyCode == 32) {
 					frogGame.changeMode(BONUS_MODE);
 					frogGame.lastKey = 0;
 				}
@@ -902,23 +914,34 @@
 			this.ctx.fillStyle="#58ACFA";
 			this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height)
 			
-			this.ctx.save();
-			this.plant.draw(this.ctx);
-			this.ctx.restore();
-
-			this.ctx.save();
-			this.frog.draw(this.ctx);
-			this.ctx.restore();
+			if (this.sounds && (this.soundsLoaded < this.soundsToLoad)) {
+				
+				this.ctx.save();
+				this.ctx.translate(this.canvas.width/2,this.canvas.height/2);
+				this.ctx.drawImage(loading_img,-(loading_img.width/2),-(loading_img.height/2));
+				this.ctx.restore();
+				
+			} else {
 			
-			this.ctx.save();
-			this.ctx.translate(this.canvas.width/2,this.canvas.height/3);
-			this.ctx.drawImage(cts_img,-(cts_img.width/2),-(cts_img.height/2));
-			this.ctx.restore();
+				this.ctx.save();
+				this.plant.draw(this.ctx);
+				this.ctx.restore();
 
-			this.ctx.save();
-			this.ctx.translate(this.canvas.width/2,this.canvas.height*2/3);
-			this.ctx.drawImage(how_to,-(how_to.width/2),-(how_to.height/2));
-			this.ctx.restore();
+				this.ctx.save();
+				this.frog.draw(this.ctx);
+				this.ctx.restore();
+
+				this.ctx.save();
+				this.ctx.translate(this.canvas.width/2,100);
+				this.ctx.drawImage(desc_img,-(desc_img.width/2),-(desc_img.height/2));
+				this.ctx.restore();
+
+				this.ctx.save();
+				this.ctx.translate(this.canvas.width/2,this.canvas.height-100);
+				this.ctx.drawImage(how_to,-(how_to.width/2),-(how_to.height/2));
+				this.ctx.restore();
+
+			}
 
 		};
 
@@ -933,15 +956,40 @@
 			this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height)
 
 			this.ctx.save();
+			this.ctx.translate(135,60);
+			this.ctx.drawImage(frog_word_img,-(frog_word_img.width/2),-(frog_word_img.height/2));
+			this.ctx.restore();
+			
+			this.ctx.save();
+			this.ctx.translate(240,150);
+			this.ctx.drawImage(instructions,-(instructions.width/2),-(instructions.height/2));
+			this.ctx.restore();
+			
+			this.ctx.save();
+			this.ctx.translate(240,240);
+			this.ctx.drawImage(instructions2,-(instructions2.width/2),-(instructions2.height/2));
+			this.ctx.restore();
+			
+			this.ctx.save();
+			this.ctx.translate(235,335);
+			this.ctx.drawImage(points_img,-(points_img.width/2),-(points_img.height/2));
+			this.ctx.restore();
+
+			this.ctx.save();
+			this.ctx.translate(235,400);
+			this.ctx.drawImage(pakts,-(pakts.width/2),-(pakts.height/2));
+			this.ctx.restore();
+
+			this.ctx.save();
 			this.ctx.translate(this.canvas.width*5/6,this.canvas.height*2/3);
 			this.ctx.drawImage(open_mouth,-(open_mouth.width/2),-(open_mouth.height/2));
 			this.ctx.restore();
-
+/*
 			this.ctx.save();
 			this.ctx.translate(250,180);
 			this.ctx.drawImage(instructions,-(instructions.width/2),-(instructions.height/2));
 			this.ctx.restore();
-
+*/
 		};
 		
 		this.run = function(timestamp) {
@@ -1286,9 +1334,12 @@
 
 				// made it to the end!
 				var endTime = (new Date()).getTime();
-				var elapsed = (endTime - this.gameStart) / 1000;
+				var elapsed = Math.floor((endTime - this.gameStart) / 1000);
 				this.totalTime = elapsed;
-				$('#status').text("You made it! You became a frog in " + elapsed + " seconds!");
+				
+				var stats = "<p>You became a frog in " + elapsed + " seconds!</p>";
+				this.showStatsDiv(stats, false);
+				$('#status').text("You made it!");
 
 			} else if (this.mode == BONUS_MODE) {
 
@@ -1309,7 +1360,7 @@
 					var accuracy = (this.frogsJumped > 0 ? Math.floor((this.lilypadHit / this.frogsJumped) * 100) : 0);
 					var bonusPoints = this.frog.points + (this.level * 200);
 
-					this.showStatsDiv("<p>Frog time: " + this.totalTime + " seconds!</br>Lilypoints: " + bonusPoints + "!<br/>Lilypad Accuracy: " + accuracy + "%</p>");
+					this.showStatsDiv("<p>Frog time: " + this.totalTime + " seconds!</br>Lilypoints: " + bonusPoints + "!<br/>Lilypad Accuracy: " + accuracy + "%</p>", true);
 					
 					$('#status').text("Time's up!");
 					
@@ -1332,15 +1383,32 @@
 			
 		}
 		
-		this.showStatsDiv = function(html) {
-
-			$('#finalStats').html(html);
+		this.showStatsDiv = function(html, box) {
 			
 			var coff = $(this.canvas).offset();
+			var t = coff.top;
+			var l = coff.left;
+			
+			if (box) {
+				$('#finalStats').addClass("box");
+			} else {
+				$('#finalStats').removeClass("box");
+			}
+
+			$('#finalStats').html(html);
 			var fsw = $('#finalStats').width();
+
+			if (box) {
+				t = t + 190;
+				l = l + (this.canvas.width / 2) - (fsw / 2) - 20;
+			} else {
+				t = t + 40;
+				l = l + 290;
+			}
+			
 			$('#finalStats').css({
-				'top': (coff.top + 190) + "px",
-				'left': (coff.left + (this.canvas.width / 2) - (fsw / 2) - 20) + "px",
+				'top': t + "px",
+				'left': l + "px",
 				'display': 'block'
 			});
 			
@@ -1380,6 +1448,7 @@
 				
 			} else if (newMode == BONUS_MODE) {
 				
+				this.hideStatsDiv();
 				this.level = 0;
 				this.sprites = [];
 				this.frog = new Frog();
@@ -1431,6 +1500,9 @@
     			url: 'audio/River_Valley_Breakdown.mp3',
     			autoLoad: true,
     			volume: 40,
+    			onload: function() {
+    				frogGame.soundsLoaded++;
+    			},
     			onfinish: function() {
     				this.play();
     			}
@@ -1438,31 +1510,49 @@
     		soundManager.createSound({
     			id: 'eat',
     			url: 'audio/124900__greencouch__beeps-18.wav',
+    			onload: function() {
+    				frogGame.soundsLoaded++;
+    			},
     			autoLoad: true
     		});
     		soundManager.createSound({
     			id: 'bad',
     			url: 'audio/142608__autistic-lucario__error.wav',
+    			onload: function() {
+    				frogGame.soundsLoaded++;
+    			},
     			autoLoad: true
     		});
     		soundManager.createSound({
     			id: 'gameover',
     			url: 'audio/43698__notchfilter__game-over03.wav',
+    			onload: function() {
+    				frogGame.soundsLoaded++;
+    			},
     			autoLoad: true
     		});
     		soundManager.createSound({
     			id: 'levelup',
     			url: 'audio/90633__benboncan__level-up.wav',
+    			onload: function() {
+    				frogGame.soundsLoaded++;
+    			},
     			autoLoad: true
     		});
     		soundManager.createSound({
     			id: 'splash',
     			url: 'audio/110393__soundscalpel-com__water-splash.wav',
+    			onload: function() {
+    				frogGame.soundsLoaded++;
+    			},
     			autoLoad: true
     		});
     		soundManager.createSound({
     			id: 'complete',
     			url: 'audio/177120__rdholder__2dogsound-tadaa1-3s-2013jan31-cc-by-30-us.wav',
+    			onload: function() {
+    				frogGame.soundsLoaded++;
+    			},
     			autoLoad: true
     		});
 			

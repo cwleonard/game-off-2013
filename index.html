@@ -16,7 +16,7 @@
 
     soundManager.setup({
     	url: 'swf/',
-    	//preferFlash: false,
+    	preferFlash: false,
     	debugMode: false,
     	onready: function() {
     		console.log("soundmanager ready!");
@@ -24,6 +24,7 @@
     	},
     	ontimeout: function() {
     		console.log("soundmanager could not start!");
+			frogGame.sounds = false;	    		
     	}
     });
     
@@ -47,8 +48,6 @@
   <body>
 
 	<h2 id="title">The Frog Lifecycle</h2>
-
-	<p id="desc">You start as a tadpole. Grab food but don't become food for something else! How fast can you become a frog?</p>
 
     <div>
       <canvas class="centered" id="game" width="800" height="450"></canvas>
