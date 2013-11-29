@@ -819,7 +819,7 @@
 				
 			} else if (this.mode == PREBONUS_MODE) {
 				
-				if (this.allowKeypress && event.type == "keyup") { // && event.keyCode == 32) {
+				if (this.allowKeypress && event.type == "keyup") {
 					this.changeMode(BONUS_MODE);
 					this.lastKey = 0;
 				}
