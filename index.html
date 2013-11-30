@@ -16,7 +16,7 @@
 
     soundManager.setup({
     	url: 'swf/',
-    	preferFlash: false,
+    	preferFlash: true,
     	debugMode: false,
     	onready: function() {
     		console.log("soundmanager ready!");
@@ -62,12 +62,7 @@
     <p id="buttons"><a class="fancy" onclick="frogGame.reset();">RESET</a>
     <a id="pauseButton" class="fancy" onclick="frogGame.pause(this);">PAUSE</a></p>
     
-    <div>
-    	<input type="button" value="2" onclick="frogGame.changeMode(2);"/>
-    </div>
-    
     <div id="finalStats"></div>
-     
      
   </body>
 </html>
