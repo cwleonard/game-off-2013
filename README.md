@@ -72,4 +72,4 @@ http://www.fontspace.com/astigmatic-one-eye-typographic-institute/ribeye
 
 ## Author
 
-This game was created by Casey Leonard. You can find out everything you wanted to know about me at http://caseyleonard.com.
+This game was created by Casey Leonard. You can find out everything you will ever want to know about me at http://caseyleonard.com.
