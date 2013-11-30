@@ -4,7 +4,7 @@
 
 Frogs. They know change all their lives. Starting out as tadpoles, they have to eat but not be eaten. They grow legs, lose their tails, and have to live on land for a while. But they return to the pond to start the cycle of life over again.
 
-I wrote this simple HTML5 Canvas game for the [GitHub Game-off 2013](https://github.com/github/game-off-2013). The theme was "change", which worked out well because I was able to make a frog-related game. Most of the things I create tend to be frog-related.
+I wrote this simple HTML5 Canvas game for the [GitHub Game-off 2013](https://github.com/github/game-off-2013). The theme was "change," which worked out well because I was able to make a frog-related game. Most of the things I create tend to be frog-related.
 
 ### How to Play
 
@@ -24,7 +24,7 @@ Unfortunately, it can't be played on mobile devices. You'll need a real computer
 
 ## Software
 
-This project would not be possible without the following open source software packages. You can find the complete license information [here](license.txt).
+The game is written in JavaScript. I kept it simple so I didn't need any game engine package, but I did use some other packages and utilities. I wouldn't have been able to complete this game so quickly without the following open source software. You can find the complete license information [here](license.txt).
 
   * [jQuery](http://jquery.com/) - https://github.com/jquery/jquery
 
