@@ -45,6 +45,26 @@ body {
 	
 }
 
+#footer p {
+	
+	font-family: Verdana, Geneva, sans-serif;
+	font-size: 12pt;
+	text-align: center;
+	
+}
+
+#footer a {
+	color: #000000;
+}
+
+#github {
+	margin-top: 50px;
+}
+
+#license {
+	margin-top: 20px;
+}
+
 #status {
 	
 	font-family: 'Ribeye', cursive;
