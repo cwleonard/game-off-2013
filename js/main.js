@@ -154,6 +154,52 @@
 	loading_img.src = "img/loading.png";
 	frog_word_img.src = "img/round2_frog.png";
 	
+	// --------------------- sounds
+	
+	var soundsToLoad = [
+			{
+				name : 'background',
+				url : 'audio/River_Valley_Breakdown.mp3',
+				volume : 40,
+				loop : true
+			},
+			{
+				name : 'eat',
+				url : 'audio/124900__greencouch__beeps-18.mp3',
+				loop : false
+			},
+			{
+				name : 'bad',
+				url : 'audio/142608__autistic-lucario__error.wav',
+				loop : false
+			},
+			{
+				name : 'gameover',
+				url : 'audio/43698__notchfilter__game-over03.wav',
+				loop : false
+			},
+			{
+				name : 'levelup',
+				url : 'audio/90633__benboncan__level-up.wav',
+				loop : false
+			},
+			{
+				name : 'splash',
+				url : 'audio/110393__soundscalpel-com__water-splash.wav',
+				loop : false
+			},
+			{
+				name : 'complete',
+				url : 'audio/177120__rdholder__2dogsound-tadaa1-3s-2013jan31-cc-by-30-us.wav',
+				loop : false
+			}, {
+				name : 'buzz',
+				url : 'audio/95817__dobroide__20100424-bee.wav',
+				loop : false,
+				volume : 40
+			} ];
+	var soundsLoaded = 0;
+	
 	// -----------------------------
 	
 	function Dragonfly() {
@@ -786,51 +832,6 @@
 	
 	function FrogGame() {
 		
-		this.soundsToLoad = [{
-			name: 'background',
-			url: 'audio/River_Valley_Breakdown.mp3',
-			volume: 40,
-			loop: true
-		},
-		{
-			name: 'eat',
-			url: 'audio/124900__greencouch__beeps-18.wav',
-			loop: false
-		},
-		{
-			name: 'bad',
-			url: 'audio/142608__autistic-lucario__error.wav',
-			loop: false
-		},
-		{
-			name: 'gameover',
-			url: 'audio/43698__notchfilter__game-over03.wav',
-			loop: false
-		},
-		{
-			name: 'levelup',
-			url: 'audio/90633__benboncan__level-up.wav',
-			loop: false
-		},
-		{
-			name: 'splash',
-			url: 'audio/110393__soundscalpel-com__water-splash.wav',
-			loop: false
-		},
-		{
-			name: 'complete',
-			url: 'audio/177120__rdholder__2dogsound-tadaa1-3s-2013jan31-cc-by-30-us.wav',
-			loop: false
-		},
-		{
-			name: 'buzz',
-			url: 'audio/95817__dobroide__20100424-bee.wav',
-			loop: false,
-			volume: 40
-		}
-		];
-		this.soundsLoaded = 0;
-		
 		this.fps = 50;
 		this.mode = PREGAME_MODE;
 		this.lastMode = PREGAME_MODE;
@@ -1029,7 +1030,7 @@
 			this.ctx.fillStyle="#58ACFA";
 			this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height)
 			
-			if (this.sounds && (this.soundsLoaded < this.soundsToLoad.length)) {
+			if (this.sounds && (soundsLoaded < soundsToLoad.length)) {
 				
 				this.ctx.save();
 				this.ctx.translate(this.canvas.width/2,this.canvas.height/2);
@@ -1518,7 +1519,7 @@
 					var accuracy = (this.frogsJumped > 0 ? Math.floor((this.lilypadHit / this.frogsJumped) * 100) : 0);
 					var bonusPoints = this.frog.points + (this.level * 200);
 
-					this.showStatsDiv("<p>Frog time: " + this.totalTime + " seconds!</br>Lilypoints: " + bonusPoints + "!<br/>Lilypad Accuracy: " + accuracy + "%</p>", true);
+					this.showStatsDiv("<p>Final Stats:<br/>Became a Frog in " + this.totalTime + " seconds!</br>Lilypad Points: " + bonusPoints + "!<br/>Lilypad Accuracy: " + accuracy + "%</p>", true);
 					
 					$('#status').text("Time's up!");
 					
@@ -1656,25 +1657,25 @@
 		
 		this.createSounds = function() {
 			
-			for (var i = 0; i < this.soundsToLoad.length; i++) {
+			for (var i = 0; i < soundsToLoad.length; i++) {
 				
 				var p = {
-					id: this.soundsToLoad[i].name,
-					url: this.soundsToLoad[i].url,
+					id: soundsToLoad[i].name,
+					url: soundsToLoad[i].url,
 					autoLoad: true,
 					onload: function() {
-	    				frogGame.soundsLoaded++;
+	    				soundsLoaded++;
 	    			}
 				};
 				
-				if (this.soundsToLoad[i].loop) {
+				if (soundsToLoad[i].loop) {
 					p.onfinish = function() {
 						this.play();
 					};
 				}
 				
-				if (this.soundsToLoad[i].volume) {
-					p.volume = this.soundsToLoad[i].volume;
+				if (soundsToLoad[i].volume) {
+					p.volume = soundsToLoad[i].volume;
 				}
 				
 				soundManager.createSound(p);

@@ -12,7 +12,15 @@ In this game, you guide your tadpole through its metamorphosis. Use the arrow ke
 
 ### Browser Compatibility
 
-The game works in modern web browsers - recent Chrome, Firefox, Safari, even Internet Explorer - but not on mobile devices. You'll need a real computer for this one. This is mostly because you move with the keyboard.
+The game works in modern web browsers
+
+  * Chrome 24+
+  
+  * Firefox 23+
+  
+  * Internet Explorer 10+
+  
+Unfortunately, it can't be played on mobile devices. You'll need a real computer for this one. This is mostly because you move with the keyboard.
 
 ### Graphics
 
