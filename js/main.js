@@ -170,31 +170,31 @@
 			},
 			{
 				name : 'bad',
-				url : 'audio/142608__autistic-lucario__error.wav',
+				url : 'audio/142608__autistic-lucario__error.mp3',
 				loop : false
 			},
 			{
 				name : 'gameover',
-				url : 'audio/43698__notchfilter__game-over03.wav',
+				url : 'audio/43698__notchfilter__game-over03.mp3',
 				loop : false
 			},
 			{
 				name : 'levelup',
-				url : 'audio/90633__benboncan__level-up.wav',
+				url : 'audio/90633__benboncan__level-up.mp3',
 				loop : false
 			},
 			{
 				name : 'splash',
-				url : 'audio/110393__soundscalpel-com__water-splash.wav',
+				url : 'audio/110393__soundscalpel-com__water-splash.mp3',
 				loop : false
 			},
 			{
 				name : 'complete',
-				url : 'audio/177120__rdholder__2dogsound-tadaa1-3s-2013jan31-cc-by-30-us.wav',
+				url : 'audio/177120__rdholder__2dogsound-tadaa1-3s-2013jan31-cc-by-30-us.mp3',
 				loop : false
 			}, {
 				name : 'buzz',
-				url : 'audio/95817__dobroide__20100424-bee.wav',
+				url : 'audio/95817__dobroide__20100424-bee.mp3',
 				loop : false,
 				volume : 40
 			} ];
