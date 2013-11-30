@@ -49,6 +49,8 @@ The game sound effects are also licensed under Creative Commons: By Attribution 
   * "water splash" by soundscalpel.com - http://www.freesound.org/people/soundscalpel.com/sounds/110393/
   
   * "ta-daa" by rdholder - http://www.freesound.org/people/rdholder/sounds/177120/
+  
+  * "20100424.bee.wav" by dobroide - http://www.freesound.org/people/dobroide/sounds/95817/
 
 ### Font
 
