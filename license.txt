@@ -19,11 +19,20 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+================================================================================
 
-Portions of this software are other open-source projects and are used
-in accordance with their respective licenses, shown below.
+All of the game images (tadpoles, plants, fish, frogs, etc.) are
+Copyright (c) 2013 Casey Leonard (caseyleonard.com) and are made available
+via the Creative Commons Attribution-NonCommercial license.
+
+See http://creativecommons.org/licenses/by-nc/3.0/ for details.
 
 ================================================================================
+
+Other game assets (music and sound effects) are licensed under the
+Creative Commons Attribution license.
+
+See http://creativecommons.org/licenses/by/3.0/ for details.
 
 Game music:
 
@@ -41,13 +50,17 @@ Game sounds:
 "ta-daa" by rdholder - http://www.freesound.org/people/rdholder/sounds/177120/
 "20100424.bee.wav" by dobroide - http://www.freesound.org/people/dobroide/sounds/95817/
 
-
 ================================================================================
+
+Portions of this software are other open-source projects and are used
+in accordance with their respective licenses, shown below.
+
+------
 
 This software uses the animated progress bar for jQuery by Ivan Lazarevic.
 https://github.com/kopipejst/progressbar
 
-================================================================================
+------
 
 This software uses jQuery, which is used under the MIT License.
 The following notice and conditions are in accordance with the license:
@@ -74,7 +87,7 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-================================================================================
+------
 
 This software uses SoundManager2, which is used under the BSD License.
 The following notice and conditions are in accordance with the license:

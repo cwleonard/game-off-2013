@@ -22,13 +22,9 @@ The game works in modern web browsers
   
 Unfortunately, it can't be played on mobile devices. You'll need a real computer for this one. This is mostly because you move with the keyboard.
 
-### Graphics
+## Software
 
-I created the images used in the game - all the frogs, fish, plants, etc. I used [Inkscape](http://inkscape.org/) and [GIMP](http://www.gimp.org/).
-
-### Software
-
-This project uses the following open source software packages. You can find the complete license information [here](license.txt).
+This project would not be possible without the following open source software packages. You can find the complete license information [here](license.txt).
 
   * [jQuery](http://jquery.com/) - https://github.com/jquery/jquery
 
@@ -36,9 +32,16 @@ This project uses the following open source software packages. You can find the 
 
   * The animated progress bar for jQuery by Ivan Lazarevic. - https://github.com/kopipejst/progressbar
 
+## Game Assets
+
+### Graphics
+
+I created the images used in the game - all the frogs, fish, plants, etc. I used [Inkscape](http://inkscape.org/) and [GIMP](http://www.gimp.org/).
+I am making them available here under the [Creative Commons Attribution-NonCommercial license] (http://creativecommons.org/licenses/by-nc/3.0/).
+
 ### Music
 
-The game music is royalty-free and licensed under Creative Commons: By Attribution 3.0.
+The game music is licensed under Creative Commons: By Attribution 3.0.
 
   * "River Valley Breakdown" Kevin MacLeod ([incompetech.com](http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300032)) 
 
@@ -67,3 +70,6 @@ The font used in all the game displays is "Ribeye" by Brian J. Bonislawsky DBA A
 
 http://www.fontspace.com/astigmatic-one-eye-typographic-institute/ribeye
 
+## Author
+
+This game was created by Casey Leonard. You can find out everything you wanted to know about me at http://caseyleonard.com.
