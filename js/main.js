@@ -841,6 +841,7 @@
 		this.lastTime = null;
 		this.gameStart = null;
 		this.paused = false;
+		this.pauseTime = 0;
 		
 		this.countdownTimer = 60; // length of bonus round in seconds
 		this.secondTimer = 0;
@@ -884,6 +885,7 @@
 			this.level = 1;
 			this.lastTime = null;
 			this.gameStart = null;
+			this.pauseTime = 0;
 			this.countdownTimer = 60; // length of bonus round in seconds
 			this.secondTimer = 0;
 			this.paused = false;
@@ -1137,6 +1139,8 @@
 					this.gameOverLoop(elapsed);
 					return; // don't loop back here again
 				}
+			} else {
+				this.pauseTime += elapsed;
 			}
 			
 			var me = this;
@@ -1493,7 +1497,7 @@
 
 				// made it to the end!
 				var endTime = (new Date()).getTime();
-				var elapsed = Math.floor((endTime - this.gameStart) / 1000);
+				var elapsed = Math.floor((endTime - this.gameStart - this.pauseTime) / 1000);
 				this.totalTime = elapsed;
 				
 				var stats = "<p>You became a frog in " + elapsed + " seconds!</p>";
