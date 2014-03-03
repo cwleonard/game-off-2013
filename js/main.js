@@ -423,12 +423,15 @@
 
 	        		var xp = 0;
 	        		var yp = 0;
-	        		if (this.slope < 0) {
+	        		if (this.slope == Infinity) {
+		        		yp = delta;
+	        		} else if (this.slope < 0) {
 	        			xp = -(delta / Math.sqrt((1 + Math.pow(this.slope, 2))));
+		        		yp = this.slope * xp;
 	        		} else {
 	        			xp = (delta / Math.sqrt((1 + Math.pow(this.slope, 2))));
+		        		yp = this.slope * xp;
 	        		}
-	        		yp = this.slope * xp;
 	        		
 	        		this.position.x += xp;
 	        		this.position.y -= yp;
