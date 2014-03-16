@@ -1663,32 +1663,37 @@
 		}
 		
 		this.createSounds = function() {
+			this.makeSound(0);
+		}
+		
+		this.makeSound = function(i) {
+
+			if (i == soundsToLoad.length) return;
 			
-			for (var i = 0; i < soundsToLoad.length; i++) {
-				
-				var p = {
+			var fg = this;
+			
+			var p = {
 					id: soundsToLoad[i].name,
 					url: soundsToLoad[i].url,
 					autoLoad: true,
 					onload: function() {
-	    				soundsLoaded++;
-	    			}
+						soundsLoaded++;
+						fg.makeSound(i+1);
+					}
+			};
+
+			if (soundsToLoad[i].loop) {
+				p.onfinish = function() {
+					this.play();
 				};
-				
-				if (soundsToLoad[i].loop) {
-					p.onfinish = function() {
-						this.play();
-					};
-				}
-				
-				if (soundsToLoad[i].volume) {
-					p.volume = soundsToLoad[i].volume;
-				}
-				
-				soundManager.createSound(p);
-				
 			}
-			
+
+			if (soundsToLoad[i].volume) {
+				p.volume = soundsToLoad[i].volume;
+			}
+
+			soundManager.createSound(p);
+
 		}
 		
 		
